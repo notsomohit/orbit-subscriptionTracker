@@ -61,7 +61,7 @@ export const logIn = asyncHandler(async(req,res) => {
         throw new ApiError(401,"Invalid credentials");
     }
 
-    const token = jwt.sign({UserId:user._id},JWT_SECRET,{expiresIn:JWT_SECRET_EXPIRY});
+    const token = jwt.sign({userId:user._id},JWT_SECRET,{expiresIn:JWT_SECRET_EXPIRY});
 
     res.status(200).json(new ApiResponse(
         200,

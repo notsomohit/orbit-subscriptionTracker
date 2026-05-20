@@ -1,0 +1,17 @@
+# {
+#     "statusCode": 200,
+#     "message": "user logged in succesfully",
+#     "data": {
+#         "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiI2YTA3OTY1M2UwYTQ4OTlhOWY1OGExNmQiLCJpYXQiOjE3Nzg5MzEwMTQsImV4cCI6MTc3OTAxNzQxNH0.w2PXTP7ypyS5olpK8aG5cxNPRAsMo2laUAEv2VhdE7U",
+#         "user": {
+#             "_id": "6a079653e0a4899a9f58a16d",
+#             "name": "mohitnew",
+#             "email": "mohitnew@gmail.com",
+#             "password": "$2b$10$zHXAHU3qc6xTPlrZ7COGtet1uCJYEBlscEhJe00MQX/M948i4YMFS",
+#             "createdAt": "2026-05-15T21:55:31.766Z",
+#             "updatedAt": "2026-05-15T21:55:31.766Z",
+#             "__v": 0
+#         }
+#     },
+#     "sucess": true
+# }

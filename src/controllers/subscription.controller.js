@@ -1,7 +1,9 @@
+import { workflowClient } from "../../config/upstash.js";
 import Subscription from "../models/subscription.model.js";
 import { ApiError } from "../utils/api-errors.js";
 import { ApiResponse } from "../utils/api-response.js";
 import { asyncHandler } from "../utils/async-handler.js";
+import { SERVER_URL } from  "../../config/env.js";
 
 export const createSubscription = asyncHandler(async(req,res) => {
     const subscription = await Subscription.create(
@@ -10,11 +12,23 @@ export const createSubscription = asyncHandler(async(req,res) => {
             user:req.user._id
         }
     );
+
+    const {workflowRunId} = await workflowClient.trigger({
+        url:`${SERVER_URL}/api/v1/workflows/subscription/reminder`,
+        body:{
+            subscriptionId:subscription.id,
+        },
+        headers: {
+            "content-type":"application/json",
+        },
+        retries:0,
+    });
+
     res.status(201).json(new ApiResponse(
         201,
         "subscrition was successfully created",
         {
-            data:subscription
+            data:{subscription,workflowRunId}
         }
     ))
 });

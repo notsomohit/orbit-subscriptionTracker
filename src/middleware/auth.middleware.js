@@ -17,8 +17,7 @@ export const authorize = asyncHandler(async (req,res,next) => {
 
     const decoded = jwt.verify(token,JWT_SECRET);
 
-    console.log(decoded);
-    const user = await User.findById(decoded.UserId);
+    const user = await User.findById(decoded.userId);
 
     if(!user){
         return res.status(401).json(new ApiResponse(401,"unauthorised no user"));

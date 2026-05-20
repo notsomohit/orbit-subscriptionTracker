@@ -4,6 +4,7 @@ import Subscription from "./models/subscription.model.js";
 import authRouter from "./routes/auth.route.js";
 import subscriptionRouter from "./routes/subscription.routes.js";
 import { arcjetMiddleware } from "./middleware/arcjet.middleware.js";
+import workflowRouter from "./routes/workflow.routes.js";
 
 const app = express();
 
@@ -14,6 +15,8 @@ app.use(arcjetMiddleware);
 
 app.use("/api/v1/auth",authRouter);
 app.use("/api/v1/subscription",subscriptionRouter);
+app.use("/api/v1/workflows",workflowRouter);
+
 
 app.get("/",(req,res) => {
     res.send(`welcome to Subcription Tracker API`);
