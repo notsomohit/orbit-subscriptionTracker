@@ -15,7 +15,7 @@ export const sendReminders = serve(async(context) => {
     const renewalDate = dayjs(subscription.renewalDate);
 
     if(renewalDate.isBefore(dayjs())){
-        console.log(`renewal date has passed for subscription ${subscription._id}.stoppping workflow`);
+        console.log(`renewal date has passed for subscription ${subscriptionId}. stopping workflow`);
         return;
     }
     
@@ -25,7 +25,7 @@ export const sendReminders = serve(async(context) => {
         if(reminderDate.isAfter(dayjs())){
             
             await sleepUntilReminder(context,`Reminder ${daysbefore} days before`,reminderDate);
-            await triggerReminder(context,`Reminder ${daysbefore} days before reminder`,subscription);
+            await triggerReminder(context,`${daysbefore} days before reminder`,subscription);
         };
 
     }
@@ -40,8 +40,7 @@ const fetchSubscription = async (context,subscriptionId) => {
 
 const sleepUntilReminder = async(context,label,date) => {
     console.log(`sleeping unitl ${label} reminder at ${date}`);
-    await context.sleepUntil(label,date.toDate());
-
+    await context.sleepUntil(label, date.toDate());
 };
 
 const triggerReminder = async(context,label,subscription) => {

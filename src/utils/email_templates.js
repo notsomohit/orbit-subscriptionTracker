@@ -267,4 +267,5 @@ export const emailTemplates = [
         daysLeft: 1,
       }),
   },
+  
 ];
