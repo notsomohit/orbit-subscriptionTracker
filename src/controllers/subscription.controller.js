@@ -93,7 +93,7 @@ export const updateSubscription = asyncHandler(async(req,res) => {
 
     allowedUpdates.forEach((field) => {
         if(req.body[field]!== undefined){
-            subscription[field] == req.body[field];
+            subscription[field] = req.body[field];
         }
     })
 
