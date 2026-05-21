@@ -48,7 +48,7 @@ export const generateEmailTemplate = ({
             margin: 0;
           "
         >
-          SubDub
+          PulseBill
         </p>
       </td>
     </tr>
@@ -157,7 +157,7 @@ export const generateEmailTemplate = ({
         <!-- FOOTER -->
         <p style="font-size: 16px; margin-top: 35px;">
           Best regards,<br />
-          <strong>The SubDub Team</strong>
+          <strong>The PulseBill Team</strong>
         </p>
 
       </td>
@@ -175,7 +175,7 @@ export const generateEmailTemplate = ({
       >
 
         <p style="margin: 0 0 10px;">
-          © 2026 SubDub. All rights reserved.
+          © 2026 PulseBill. All rights reserved.
         </p>
 
         <p style="margin: 0;">
@@ -267,5 +267,5 @@ export const emailTemplates = [
         daysLeft: 1,
       }),
   },
-  
+
 ];

@@ -1,6 +1,6 @@
 # 🚀 Subscription Tracker API
 
-Backend API for managing subscriptions and automating renewal reminders using Upstash Workflow.
+Backend API for managing subscriptions and automating renewal reminder emails using Upstash Workflow, Nodemailer, and MongoDB.
 
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
@@ -11,23 +11,24 @@ Backend API for managing subscriptions and automating renewal reminders using Up
 ![Arcjet](https://img.shields.io/badge/Arcjet-262626?style=for-the-badge)
 ![Upstash](https://img.shields.io/badge/Upstash-00E9A3?style=for-the-badge&logo=upstash&logoColor=black)
 
+---
+
+# Features
+
+-  JWT Authentication & Authorization
+-  Full Subscription CRUD Operations
+-  Automated Renewal Reminder Emails
+-  Dynamic HTML Email Templates
+-  Async Delayed Workflows using Upstash
+-  Arcjet Security Protection
+-  Rate Limiting & Bot Detection
+-  Standardized API Responses
+-  Centralized Error Handling
+-  MongoDB + Mongoose Integration
 
 ---
 
-## ✨ Features
-
-- 🔐 JWT Authentication & Authorization
-- 📦 Subscription CRUD Operations
-- ⏰ Automated Renewal Reminders
-- 🛡️ Arcjet Security Protection
-- 🚦 Rate Limiting & Bot Detection
-- 📄 Standardized API Responses
-- ⚡ Centralized Error Handling
-- 🗃️ MongoDB + Mongoose Integration
-
----
-
-## 📚 Libraries Used
+# 📚 Libraries Used
 
 - `express`
 - `mongoose`
@@ -36,34 +37,45 @@ Backend API for managing subscriptions and automating renewal reminders using Up
 - `cookie-parser`
 - `dotenv`
 - `dayjs`
+- `nodemailer`
 - `@arcjet/node`
 - `@upstash/workflow`
 
 ---
 
-## 📁 Project Structure
+# 📁 Project Structure
 
 ```bash
 subscription-tracker/
 ├── config/
+│   ├── env.js
+│   ├── nodemailer.js
+│   └── upstash.js
+│
 ├── src/
 │   ├── controllers/
-│   ├── db/
 │   ├── middleware/
 │   ├── models/
 │   ├── routes/
 │   ├── utils/
+│   │   ├── email_templates.js
+│   │   ├── send_email.js
+│   │   ├── api-errors.js
+│   │   ├── api-response.js
+│   │   └── async-handler.js
+│   │
 │   ├── app.js
 │   └── server.js
+│
 ├── package.json
 └── README.md
 ```
 
 ---
 
-## 🔑 API Routes
+# 🔑 API Routes
 
-### Auth
+## Auth Routes
 
 ```http
 POST   /api/v1/auth/sign-up
@@ -71,7 +83,9 @@ POST   /api/v1/auth/log-in
 POST   /api/v1/auth/log-out
 ```
 
-### Subscriptions
+---
+
+## Subscription Routes
 
 ```http
 GET    /api/v1/subscription
@@ -81,7 +95,9 @@ PUT    /api/v1/subscription/:id
 DELETE /api/v1/subscription/:id
 ```
 
-### Workflows
+---
+
+## Workflow Routes
 
 ```http
 POST /api/v1/workflows/subscription/reminder
@@ -89,7 +105,7 @@ POST /api/v1/workflows/subscription/reminder
 
 ---
 
-## 🔐 Authentication Flow
+# 🔐 Authentication Flow
 
 ```text
 Client
@@ -103,34 +119,62 @@ Protected Routes
 
 ---
 
-## 🛡️ Security
+# 🛡️ Security Features
 
 - Arcjet middleware integration
-- Bot detection
+- Bot protection
 - Rate limiting
-- JWT route protection
+- JWT protected routes
+- Secure password hashing with bcrypt
 - Mongoose schema validation
 
 ---
 
-## ⏰ Reminder Workflow
+# ⏰ Reminder Workflow System
 
-Reminder jobs are scheduled automatically when a subscription is created.
+Reminder workflows are automatically triggered whenever a subscription is created.
 
-Intervals:
+The workflow:
+- calculates reminder dates
+- sleeps until the scheduled time
+- wakes up automatically
+- sends renewal reminder emails
+
+Reminder Intervals:
 - 7 days before renewal
 - 5 days before renewal
 - 2 days before renewal
 - 1 day before renewal
 
-Powered by `@upstash/workflow`.
+Powered by:
+
+```bash
+@upstash/workflow
+```
 
 ---
 
-## ⚙️ Environment Variables
+# 📧 Email Reminder System
+
+Emails are sent using:
+- Nodemailer
+- Gmail App Passwords
+- Dynamic HTML Templates
+
+Features:
+- Personalized user emails
+- Renewal date formatting
+- Subscription pricing details
+- Payment method details
+- Styled responsive email templates
+
+---
+
+# ⚙️ Environment Variables
 
 ```env
 PORT=
+
 SERVER_URL=
 NODE_ENV=
 
@@ -146,25 +190,32 @@ QSTASH_URL=
 QSTASH_TOKEN=
 QSTASH_CURRENT_SIGNING_KEY=
 QSTASH_NEXT_SIGNING_KEY=
+
+EMAIL_PASSWORD=
+ACCOUNT_EMAIL=
 ```
 
 ---
 
-## 🚀 Installation
+# 🚀 Installation
 
-### Clone Repository
+## Clone Repository
 
 ```bash
 git clone https://github.com/notsomohit/subscription-tracker.git
 ```
 
-### Install Dependencies
+---
+
+## Install Dependencies
 
 ```bash
 npm install
 ```
 
-### Start Development Server
+---
+
+## Run Development Server
 
 ```bash
 npm run dev
@@ -172,7 +223,15 @@ npm run dev
 
 ---
 
-## 🔄 Request Flow
+## Start Upstash Local Dev Server
+
+```bash
+npx @upstash/qstash-cli dev
+```
+
+---
+
+# 🔄 Request Flow
 
 ```text
 Client
@@ -185,27 +244,42 @@ Auth Middleware
    ↓
 Controller
    ↓
-Database
+MongoDB Database
    ↓
-Response
+Workflow Trigger
+   ↓
+Upstash Workflow
+   ↓
+Email Reminder
 ```
 
 ---
 
-## 📌 Current Status
+# 📌 Current Status
 
 - ✅ Authentication System
 - ✅ Subscription CRUD
-- ✅ Reminder Workflows
+- ✅ Upstash Workflow Integration
+- ✅ Automated Reminder Emails
+- ✅ Nodemailer Integration
+- ✅ Dynamic Email Templates
 - ✅ Arcjet Security Integration
 - ✅ Centralized Error Handling
 
 ---
 
-## 📈 Future Improvements
+# 📈 Future Improvements
 
-- Email Service Integration
-- Frontend Dashboard
-- Docker Support
-- Unit & Integration Tests
-- Analytics Dashboard
+- 📊 Analytics Dashboard
+- 🖥️ React Frontend
+- 🐳 Docker Support
+- 🧪 Unit & Integration Testing
+- 📱 SMS Notifications
+- 🔔 Push Notifications
+- 📅 Google Calendar Integration
+
+---
+
+# 👨‍💻 Author
+
+Backend chaos managed by [mohit](https://github.com/notsomohit) 
