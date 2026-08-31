@@ -1,10 +1,11 @@
 {
-  "name": "y",
+  "name": "subscription-tracker",
   "version": "1.0.0",
-  "main": "server.js",
+  "main": "src/server.js",
   "type": "module",
   "scripts": {
-    "start": "cross-env NODE_ENV=production node server.js",
+    "build": "npm install --prefix frontend && npm --prefix frontend run build",
+    "start": "cross-env NODE_ENV=production node src/server.js",
     "dev": "nodemon src/server.js",
     "client": "npm --prefix frontend run dev",
     "client:build": "npm --prefix frontend run build"
@@ -13,24 +14,22 @@
     "type": "git",
     "url": "git+https://github.com/notsomohit/subscription-tracker.git"
   },
-  "author": "",
+  "author": "mohit",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/notsomohit/subscription-tracker/issues"
-  },
-  "homepage": "https://github.com/notsomohit/subscription-tracker#readme",
-  "description": "",
   "dependencies": {
     "@arcjet/node": "^1.4.0",
     "@upstash/workflow": "^1.3.0",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
+    "cross-env": "^7.0.3",
     "dayjs": "^1.11.20",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.6.2",
-    "nodemailer": "^8.0.7",
+    "nodemailer": "^8.0.7"
+  },
+  "devDependencies": {
     "nodemon": "^3.1.14"
   }
 }

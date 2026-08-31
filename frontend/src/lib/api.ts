@@ -6,11 +6,18 @@ import type {
 } from '../types';
 import dayjs from 'dayjs';
 
+// Base API path (relative, works in both dev via Vite proxy and prod on Render)
+const API_BASE = '/api/v1';
+
+const getAuthHeaders = (): HeadersInit => {
+  const token = localStorage.getItem('orbit_token');
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+};
+
 // Realistic seed data that 100% matches your Mongoose schema:
-// Category: sports, news, entertainment, lifestyle, technology, finance, politics
-// Frequency: daily, weekly, monthly, yearly
-// Currency: USD, EUR, RS
-// Status: active, cancelled, expired
 let subscriptionsStore: Subscription[] = [
   {
     _id: 'sub_66d101a09f821',
@@ -141,6 +148,25 @@ export function computeWorkflowReminders(sub: Subscription): WorkflowRunInfo['re
 export const api = {
   // Auth API
   async login(credentials: { email: string; password: string }): Promise<{ user: User; token: string }> {
+    try {
+      const res = await fetch(`${API_BASE}/auth/log-in`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(credentials),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        return data.data;
+      }
+      const err = await res.json().catch(() => null);
+      if (err?.message) throw new Error(err.message);
+    } catch (err: any) {
+      if (err.message && !err.message.includes('fetch') && !err.message.includes('NetworkError')) {
+        throw err;
+      }
+    }
+
+    // Fallback mock session
     await new Promise((res) => setTimeout(res, 300));
     return {
       user: {
@@ -153,6 +179,25 @@ export const api = {
   },
 
   async signUp(userData: { name: string; email: string; password: string }): Promise<{ user: User; token: string }> {
+    try {
+      const res = await fetch(`${API_BASE}/auth/sign-up`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        return data.data;
+      }
+      const err = await res.json().catch(() => null);
+      if (err?.message) throw new Error(err.message);
+    } catch (err: any) {
+      if (err.message && !err.message.includes('fetch') && !err.message.includes('NetworkError')) {
+        throw err;
+      }
+    }
+
+    // Fallback mock session
     await new Promise((res) => setTimeout(res, 350));
     return {
       user: {
@@ -165,14 +210,33 @@ export const api = {
   },
 
   async logout(): Promise<boolean> {
-    await new Promise((res) => setTimeout(res, 150));
+    try {
+      await fetch(`${API_BASE}/auth/log-out`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+      });
+    } catch (e) {
+      // ignore
+    }
     return true;
   },
 
   // Subscriptions CRUD (/api/v1/subscription)
   async getSubscriptions(): Promise<Subscription[]> {
+    try {
+      const res = await fetch(`${API_BASE}/subscription`, {
+        headers: getAuthHeaders(),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.data?.data)) return data.data.data;
+        if (Array.isArray(data.data)) return data.data;
+      }
+    } catch (e) {
+      // fallback to store
+    }
+
     await new Promise((res) => setTimeout(res, 200));
-    // Auto-update expired status to mirror Mongoose pre('save')
     return subscriptionsStore.map((sub) => {
       if (new Date(sub.renewalDate) < new Date() && sub.status === 'active') {
         return { ...sub, status: 'expired' };
@@ -182,11 +246,37 @@ export const api = {
   },
 
   async getSubscriptionById(id: string): Promise<Subscription | undefined> {
+    try {
+      const res = await fetch(`${API_BASE}/subscription/${id}`, {
+        headers: getAuthHeaders(),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        return data.data?.data || data.data;
+      }
+    } catch (e) {
+      // fallback to store
+    }
+
     await new Promise((res) => setTimeout(res, 150));
     return subscriptionsStore.find((s) => s._id === id);
   },
 
   async createSubscription(payload: CreateSubscriptionPayload): Promise<{ subscription: Subscription; workflowRunId: string }> {
+    try {
+      const res = await fetch(`${API_BASE}/subscription`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        return data.data?.data || data.data;
+      }
+    } catch (e) {
+      // fallback
+    }
+
     await new Promise((res) => setTimeout(res, 300));
     const renewalDate = calculateRenewalDate(payload.startDate, payload.frequency);
     const newSub: Subscription = {
@@ -206,6 +296,20 @@ export const api = {
   },
 
   async updateSubscription(id: string, updates: Partial<CreateSubscriptionPayload & { status: Subscription['status'] }>): Promise<Subscription> {
+    try {
+      const res = await fetch(`${API_BASE}/subscription/${id}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(updates),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        return data.data?.data || data.data;
+      }
+    } catch (e) {
+      // fallback
+    }
+
     await new Promise((res) => setTimeout(res, 250));
     const index = subscriptionsStore.findIndex((s) => s._id === id);
     if (index === -1) throw new Error('Subscription not found');
@@ -223,6 +327,16 @@ export const api = {
   },
 
   async deleteSubscription(id: string): Promise<boolean> {
+    try {
+      const res = await fetch(`${API_BASE}/subscription/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+      });
+      if (res.ok) return true;
+    } catch (e) {
+      // fallback
+    }
+
     await new Promise((res) => setTimeout(res, 250));
     const idx = subscriptionsStore.findIndex((s) => s._id === id);
     if (idx !== -1) {
