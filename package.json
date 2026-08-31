@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "start": "cross-env NODE_ENV=production node server.js",
-    "dev": "nodemon src/server.js"
+    "dev": "nodemon src/server.js",
+    "client": "npm --prefix frontend run dev",
+    "client:build": "npm --prefix frontend run build"
   },
   "repository": {
     "type": "git",
