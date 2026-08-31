@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import type { User } from '../types';
 
 interface AuthContextType {
@@ -11,13 +11,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const DEMO_USER: User = {
-  _id: 'usr_66c28f9901aa92110293',
-  name: 'Mohit',
-  email: 'mohit@orbit.dev',
-  createdAt: '2026-01-10T10:00:00.000Z',
-};
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
     const saved = localStorage.getItem('orbit_user');
@@ -25,10 +18,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         return JSON.parse(saved);
       } catch (e) {
-        return DEMO_USER;
+        return null;
       }
     }
-    return DEMO_USER; // Default to demo user for exploration
+    return null;
   });
 
   const login = (token: string, userData: User) => {

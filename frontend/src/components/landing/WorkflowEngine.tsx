@@ -137,7 +137,7 @@ export const WorkflowEngine: React.FC = () => {
                   {/* Email Banner Header */}
                   <div className="bg-[#4a90e2] text-center py-5">
                     <span className="text-2xl font-extrabold text-white tracking-wide">
-                      PulseBill
+                      Orbit
                     </span>
                   </div>
 
@@ -178,13 +178,13 @@ export const WorkflowEngine: React.FC = () => {
 
                     <div className="pt-2 text-xs text-slate-500 dark:text-slate-400">
                       Best regards,<br />
-                      <strong>The PulseBill Team</strong>
+                      <strong>The Orbit Team</strong>
                     </div>
                   </div>
 
                   {/* Email Footer */}
                   <div className="bg-[#f0f7ff] dark:bg-[#0b101f] p-3 text-center text-[10px] text-slate-500 border-t border-[#d0e3ff] dark:border-slate-800">
-                    © 2026 PulseBill. All rights reserved. • Manage Subscription • Support
+                    © 2026 Orbit. All rights reserved. • Manage Subscription • Support
                   </div>
                 </div>
               </div>
