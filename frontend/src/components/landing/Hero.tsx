@@ -42,21 +42,30 @@ export const Hero: React.FC = () => {
               Orbit monitors your recurring subscription lifecycle with automated background workflows. Track renewal dates, trigger email reminders at 7, 5, 2, and 1 days before billing, and protect endpoints with Arcjet security.
             </p>
 
-            {/* Actions with custom button corner radius (rounded-lg / radius-button) */}
+            {/* Actions with distinct visual weight and animated moving gradient border on primary */}
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 pt-2">
+              
+              {/* Primary CTA: Glowing Shimmering Border Button */}
               <Link
                 to={isAuthenticated ? '/dashboard' : '/login'}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 rounded-lg shadow-lg shadow-indigo-600/20 transition-all hover:scale-[1.02]"
+                className="relative w-full sm:w-auto inline-flex items-center justify-center p-[1.5px] overflow-hidden rounded-lg font-semibold text-white group hover:scale-[1.02] transition-transform duration-200"
               >
-                <span>{isAuthenticated ? 'Open Dashboard' : 'Launch Console'}</span>
-                <ArrowRight className="w-4 h-4" />
+                {/* Continuous rotating conic gradient border */}
+                <span className="absolute inset-[-1000%] animate-[spin_6s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,rgba(6,182,212,0.15)_0%,#06b6d4_40%,#6366f1_60%,rgba(6,182,212,0.15)_100%)]" />
+                
+                {/* Button inside content */}
+                <span className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[7px] bg-[#0b0f19] hover:bg-[#111726] text-sm font-bold relative z-10 transition-colors duration-200">
+                  <span>{isAuthenticated ? 'Open Dashboard' : 'Launch Console'}</span>
+                  <ArrowRight className="w-4 h-4 text-cyan-400" />
+                </span>
               </Link>
 
+              {/* Secondary CTA: Low contrast ghost outline */}
               <a
                 href="#workflows"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 text-sm font-medium text-slate-300 bg-slate-900 border border-slate-800 hover:bg-slate-800 rounded-lg transition-all"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 text-sm font-medium text-slate-400 bg-transparent border border-slate-800 hover:bg-slate-900/60 hover:text-white rounded-lg transition-all"
               >
-                <Mail className="w-4 h-4 text-cyan-400" />
+                <Mail className="w-4 h-4 text-slate-500 group-hover:text-slate-300" />
                 <span>See Email Reminders</span>
               </a>
             </div>

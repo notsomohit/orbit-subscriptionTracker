@@ -30,6 +30,7 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        display: ['Space Grotesk', 'system-ui', '-apple-system', 'sans-serif'],
       },
       animation: {
         'spin-slow': 'spin 20s linear infinite',

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { LandingPage } from './pages/LandingPage';
 import { LoginPage } from './pages/auth/LoginPage';
 import { SignUpPage } from './pages/auth/SignUpPage';
@@ -9,6 +9,7 @@ import { Overview } from './pages/dashboard/Overview';
 import { Subscriptions } from './pages/dashboard/Subscriptions';
 import { Workflows } from './pages/dashboard/Workflows';
 import { ApiSpecs } from './pages/dashboard/ApiSpecs';
+import { NotFoundPage } from './pages/NotFoundPage';
 
 export const App: React.FC = () => {
   return (
@@ -30,8 +31,8 @@ export const App: React.FC = () => {
         </Route>
       </Route>
 
-      {/* Fallback */}
-      <Route path="*" element={<Navigate to="/" replace />} />
+      {/* 404 - On-theme not found page */}
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 };

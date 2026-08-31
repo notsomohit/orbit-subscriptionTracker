@@ -1,20 +1,34 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { api } from '../../lib/api';
 import { OrbitLogo } from '../common/OrbitLogo';
 
 interface OrbitingItem {
   id: string;
   name: string;
   price: string;
+  frequency: string;
   category: string;
   status: 'active' | 'renewing-soon' | 'cancelled' | 'expired';
   track: 1 | 2 | 3;
   logo: React.ReactNode;
+  statusText: string;
   colorClass: string;
   borderColorClass: string;
   glowClass: string;
 }
 
 export const OrbitHeroGraphic: React.FC = () => {
+  const [hoveredNode, setHoveredNode] = useState<string | null>(null);
+
+  // Fetch real active subscriptions count for dynamic center core
+  const { data: subscriptions = [] } = useQuery({
+    queryKey: ['subscriptions'],
+    queryFn: () => api.getSubscriptions(),
+  });
+
+  const activeCount = subscriptions.filter((s) => s.status === 'active').length || 4;
+
   // SVG Brand Icons tinted per status
   const githubIcon = (
     <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
@@ -51,15 +65,17 @@ export const OrbitHeroGraphic: React.FC = () => {
     </svg>
   );
 
-  const subscriptions: OrbitingItem[] = [
+  const subscriptionsList: OrbitingItem[] = [
     {
       id: 'sub_1',
       name: 'GitHub Copilot',
       price: '$19',
+      frequency: 'monthly',
       category: 'technology',
       status: 'active',
       track: 1,
       logo: githubIcon,
+      statusText: 'Active',
       colorClass: 'text-emerald-400',
       borderColorClass: 'border-emerald-500/20 bg-emerald-950/20',
       glowClass: 'shadow-[0_0_12px_rgba(52,211,153,0.15)]',
@@ -68,22 +84,26 @@ export const OrbitHeroGraphic: React.FC = () => {
       id: 'sub_2',
       name: 'Upstash Workflow',
       price: '$320',
+      frequency: 'yearly',
       category: 'technology',
       status: 'active',
       track: 1,
       logo: upstashIcon,
+      statusText: 'Active',
       colorClass: 'text-indigo-400',
       borderColorClass: 'border-indigo-500/20 bg-indigo-950/20',
       glowClass: 'shadow-[0_0_12px_rgba(129,140,248,0.15)]',
     },
     {
       id: 'sub_3',
-      name: 'Spotify Premium Family',
+      name: 'Spotify Family',
       price: '₹179',
+      frequency: 'monthly',
       category: 'entertainment',
       status: 'renewing-soon',
       track: 2,
       logo: spotifyIcon,
+      statusText: 'Renews in 2d',
       colorClass: 'text-amber-400',
       borderColorClass: 'border-amber-500/30 bg-amber-950/20',
       glowClass: 'shadow-[0_0_16px_rgba(251,191,36,0.3)]',
@@ -92,10 +112,12 @@ export const OrbitHeroGraphic: React.FC = () => {
       id: 'sub_4',
       name: 'Financial Times',
       price: '€39',
+      frequency: 'monthly',
       category: 'finance',
       status: 'active',
       track: 2,
       logo: ftIcon,
+      statusText: 'Active',
       colorClass: 'text-cyan-400',
       borderColorClass: 'border-cyan-500/20 bg-cyan-950/20',
       glowClass: 'shadow-[0_0_12px_rgba(34,211,238,0.15)]',
@@ -104,10 +126,12 @@ export const OrbitHeroGraphic: React.FC = () => {
       id: 'sub_5',
       name: 'Gym Pass',
       price: '₹2,500',
+      frequency: 'monthly',
       category: 'lifestyle',
       status: 'cancelled',
       track: 3,
       logo: gymIcon,
+      statusText: 'Cancelled',
       colorClass: 'text-rose-400',
       borderColorClass: 'border-rose-500/25 bg-rose-950/10',
       glowClass: 'shadow-[0_0_8px_rgba(244,63,94,0.08)]',
@@ -116,15 +140,19 @@ export const OrbitHeroGraphic: React.FC = () => {
       id: 'sub_6',
       name: 'EuroSport Pass',
       price: '€5',
+      frequency: 'daily',
       category: 'sports',
       status: 'expired',
       track: 3,
       logo: sportIcon,
+      statusText: 'Expired',
       colorClass: 'text-slate-400',
       borderColorClass: 'border-slate-800/80 bg-slate-900/10',
       glowClass: 'shadow-[0_0_6px_rgba(148,163,184,0.05)]',
     },
   ];
+
+  const activeHoveredItem = subscriptionsList.find(s => s.id === hoveredNode);
 
   return (
     <div className="relative w-full aspect-square max-w-[480px] mx-auto flex items-center justify-center select-none bg-grain-texture">
@@ -140,97 +168,203 @@ export const OrbitHeroGraphic: React.FC = () => {
       >
         {/* Gym Pass (Top) */}
         <div
-          className="absolute -top-6 left-1/2 -translate-x-1/2"
+          className="absolute -top-6 left-1/2 -translate-x-1/2 group"
           style={{ animation: 'spin 38s linear infinite reverse' }}
+          onMouseEnter={() => setHoveredNode('sub_5')}
+          onMouseLeave={() => setHoveredNode(null)}
         >
-          <div className={`w-12 h-12 rounded-xl bg-[#080c14] border ${subscriptions[4].borderColorClass} ${subscriptions[4].glowClass} ${subscriptions[4].colorClass} flex items-center justify-center`}>
-            {subscriptions[4].logo}
+          <div className="relative flex flex-col items-center">
+            {/* Tooltip */}
+            <div className="absolute bottom-full mb-2 hidden group-hover:flex flex-col items-center pointer-events-none z-50">
+              <div className="bg-[#0b0f19] border border-slate-800 px-2 py-1 rounded text-[10px] whitespace-nowrap text-slate-300 font-mono shadow-xl">
+                Gym Pass • {subscriptionsList[4].price}/mo
+              </div>
+              <div className="w-1.5 h-1.5 bg-[#0b0f19] border-r border-b border-slate-800 rotate-45 -mt-1"></div>
+            </div>
+            
+            <div className={`w-12 h-12 rounded-xl bg-[#080c14] border ${subscriptionsList[4].borderColorClass} ${subscriptionsList[4].glowClass} ${subscriptionsList[4].colorClass} flex items-center justify-center transition-transform group-hover:scale-110`}>
+              {subscriptionsList[4].logo}
+            </div>
           </div>
         </div>
 
         {/* EuroSport (Bottom) */}
         <div
-          className="absolute -bottom-6 left-1/2 -translate-x-1/2"
+          className="absolute -bottom-6 left-1/2 -translate-x-1/2 group"
           style={{ animation: 'spin 38s linear infinite reverse' }}
+          onMouseEnter={() => setHoveredNode('sub_6')}
+          onMouseLeave={() => setHoveredNode(null)}
         >
-          <div className={`w-12 h-12 rounded-xl bg-[#080c14] border ${subscriptions[5].borderColorClass} ${subscriptions[5].glowClass} ${subscriptions[5].colorClass} flex items-center justify-center`}>
-            {subscriptions[5].logo}
+          <div className="relative flex flex-col items-center">
+            {/* Tooltip */}
+            <div className="absolute bottom-full mb-2 hidden group-hover:flex flex-col items-center pointer-events-none z-50">
+              <div className="bg-[#0b0f19] border border-slate-800 px-2 py-1 rounded text-[10px] whitespace-nowrap text-slate-300 font-mono shadow-xl">
+                EuroSport • {subscriptionsList[5].price}/day
+              </div>
+              <div className="w-1.5 h-1.5 bg-[#0b0f19] border-r border-b border-slate-800 rotate-45 -mt-1"></div>
+            </div>
+            
+            <div className={`w-12 h-12 rounded-xl bg-[#080c14] border ${subscriptionsList[5].borderColorClass} ${subscriptionsList[5].glowClass} ${subscriptionsList[5].colorClass} flex items-center justify-center transition-transform group-hover:scale-110`}>
+              {subscriptionsList[5].logo}
+            </div>
           </div>
         </div>
       </div>
 
       {/* TRACK 2: Middle Ring (Diameter: ~290px, Reverse rotation) */}
       <div
-        className="absolute w-[290px] h-[290px] rounded-full border border-slate-800/50"
+        className="absolute w-[290px] h-[290px] rounded-full border border-slate-800/50 animate-spin-slow"
         style={{ 
-          animation: 'spin 28s linear infinite reverse',
+          animationDirection: 'reverse',
+          animationDuration: '28s'
         }}
       >
         {/* Spotify Premium - Pulsing Warning */}
         <div
-          className="absolute top-1/2 -left-6 -translate-y-1/2"
+          className="absolute top-1/2 -left-6 -translate-y-1/2 group"
           style={{ animation: 'spin 28s linear infinite' }}
+          onMouseEnter={() => setHoveredNode('sub_3')}
+          onMouseLeave={() => setHoveredNode(null)}
         >
-          <div className="relative flex items-center justify-center">
-            {/* Pulsing Glow Base */}
-            <span className="absolute inset-0 w-12 h-12 rounded-xl bg-amber-500/5 animate-pulse" />
-            <span className="absolute -inset-1 rounded-xl border border-amber-500/20 animate-ping" style={{ animationDuration: '3s' }} />
-            <div className={`relative w-12 h-12 rounded-xl bg-[#080c14] border ${subscriptions[2].borderColorClass} ${subscriptions[2].glowClass} ${subscriptions[2].colorClass} flex items-center justify-center`}>
-              {subscriptions[2].logo}
+          <div className="relative flex flex-col items-center justify-center">
+            {/* Tooltip */}
+            <div className="absolute bottom-full mb-2 hidden group-hover:flex flex-col items-center pointer-events-none z-50">
+              <div className="bg-[#0b0f19] border border-slate-800 px-2 py-1 rounded text-[10px] whitespace-nowrap text-slate-300 font-mono shadow-xl">
+                Spotify • {subscriptionsList[2].price}/mo
+              </div>
+              <div className="w-1.5 h-1.5 bg-[#0b0f19] border-r border-b border-slate-800 rotate-45 -mt-1"></div>
+            </div>
+
+            <div className="relative flex items-center justify-center transition-transform group-hover:scale-110">
+              {/* Pulsing Glow Base */}
+              <span className="absolute inset-0 w-12 h-12 rounded-xl bg-amber-500/5 animate-pulse" />
+              <span className="absolute -inset-1 rounded-xl border border-amber-500/20 animate-ping" style={{ animationDuration: '3s' }} />
+              <div className={`relative w-12 h-12 rounded-xl bg-[#080c14] border ${subscriptionsList[2].borderColorClass} ${subscriptionsList[2].glowClass} ${subscriptionsList[2].colorClass} flex items-center justify-center`}>
+                {subscriptionsList[2].logo}
+              </div>
             </div>
           </div>
         </div>
 
         {/* Financial Times (Right) */}
         <div
-          className="absolute top-1/2 -right-6 -translate-y-1/2"
+          className="absolute top-1/2 -right-6 -translate-y-1/2 group"
           style={{ animation: 'spin 28s linear infinite' }}
+          onMouseEnter={() => setHoveredNode('sub_4')}
+          onMouseLeave={() => setHoveredNode(null)}
         >
-          <div className={`w-12 h-12 rounded-xl bg-[#080c14] border ${subscriptions[3].borderColorClass} ${subscriptions[3].glowClass} ${subscriptions[3].colorClass} flex items-center justify-center`}>
-            {subscriptions[3].logo}
+          <div className="relative flex flex-col items-center">
+            {/* Tooltip */}
+            <div className="absolute bottom-full mb-2 hidden group-hover:flex flex-col items-center pointer-events-none z-50">
+              <div className="bg-[#0b0f19] border border-slate-800 px-2 py-1 rounded text-[10px] whitespace-nowrap text-slate-300 font-mono shadow-xl">
+                FT Digital • {subscriptionsList[3].price}/mo
+              </div>
+              <div className="w-1.5 h-1.5 bg-[#0b0f19] border-r border-b border-slate-800 rotate-45 -mt-1"></div>
+            </div>
+
+            <div className={`w-12 h-12 rounded-xl bg-[#080c14] border ${subscriptionsList[3].borderColorClass} ${subscriptionsList[3].glowClass} ${subscriptionsList[3].colorClass} flex items-center justify-center transition-transform group-hover:scale-110`}>
+              {subscriptionsList[3].logo}
+            </div>
           </div>
         </div>
       </div>
 
       {/* TRACK 1: Inner Ring (Diameter: ~180px, Faster rotation) */}
       <div
-        className="absolute w-[180px] h-[180px] rounded-full border border-slate-800/60"
-        style={{ 
-          animation: 'spin 18s linear infinite',
-        }}
+        className="absolute w-[180px] h-[180px] rounded-full border border-slate-800/60 animate-spin-slow"
+        style={{ animationDuration: '18s' }}
       >
         {/* GitHub Copilot (Top) */}
         <div
-          className="absolute -top-6 left-1/2 -translate-x-1/2"
+          className="absolute -top-6 left-1/2 -translate-x-1/2 group"
           style={{ animation: 'spin 18s linear infinite reverse' }}
+          onMouseEnter={() => setHoveredNode('sub_1')}
+          onMouseLeave={() => setHoveredNode(null)}
         >
-          <div className={`w-12 h-12 rounded-xl bg-[#080c14] border ${subscriptions[0].borderColorClass} ${subscriptions[0].glowClass} ${subscriptions[0].colorClass} flex items-center justify-center`}>
-            {subscriptions[0].logo}
+          <div className="relative flex flex-col items-center">
+            {/* Tooltip */}
+            <div className="absolute bottom-full mb-2 hidden group-hover:flex flex-col items-center pointer-events-none z-50">
+              <div className="bg-[#0b0f19] border border-slate-800 px-2 py-1 rounded text-[10px] whitespace-nowrap text-slate-300 font-mono shadow-xl">
+                GitHub Copilot • {subscriptionsList[0].price}/mo
+              </div>
+              <div className="w-1.5 h-1.5 bg-[#0b0f19] border-r border-b border-slate-800 rotate-45 -mt-1"></div>
+            </div>
+
+            <div className={`w-12 h-12 rounded-xl bg-[#080c14] border ${subscriptionsList[0].borderColorClass} ${subscriptionsList[0].glowClass} ${subscriptionsList[0].colorClass} flex items-center justify-center transition-transform group-hover:scale-110`}>
+              {subscriptionsList[0].logo}
+            </div>
           </div>
         </div>
 
         {/* Upstash (Bottom) */}
         <div
-          className="absolute -bottom-6 left-1/2 -translate-x-1/2"
+          className="absolute -bottom-6 left-1/2 -translate-x-1/2 group"
           style={{ animation: 'spin 18s linear infinite reverse' }}
+          onMouseEnter={() => setHoveredNode('sub_2')}
+          onMouseLeave={() => setHoveredNode(null)}
         >
-          <div className={`w-12 h-12 rounded-xl bg-[#080c14] border ${subscriptions[1].borderColorClass} ${subscriptions[1].glowClass} ${subscriptions[1].colorClass} flex items-center justify-center`}>
-            {subscriptions[1].logo}
+          <div className="relative flex flex-col items-center">
+            {/* Tooltip */}
+            <div className="absolute bottom-full mb-2 hidden group-hover:flex flex-col items-center pointer-events-none z-50">
+              <div className="bg-[#0b0f19] border border-slate-800 px-2 py-1 rounded text-[10px] whitespace-nowrap text-slate-300 font-mono shadow-xl">
+                Upstash • {subscriptionsList[1].price}/yr
+              </div>
+              <div className="w-1.5 h-1.5 bg-[#0b0f19] border-r border-b border-slate-800 rotate-45 -mt-1"></div>
+            </div>
+
+            <div className={`w-12 h-12 rounded-xl bg-[#080c14] border ${subscriptionsList[1].borderColorClass} ${subscriptionsList[1].glowClass} ${subscriptionsList[1].colorClass} flex items-center justify-center transition-transform group-hover:scale-110`}>
+              {subscriptionsList[1].logo}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* CENTER NODE: Permanent Orbit Core Anchor (Decorative Only, Butter-Smooth 60fps) */}
-      <div className="relative z-20 w-[140px] h-[140px] rounded-[24px] bg-[#0b0f19] border border-slate-800 shadow-[0_0_35px_rgba(6,182,212,0.08)] flex flex-col items-center justify-center p-3 text-center">
-        <div className="flex flex-col items-center justify-center">
-          <OrbitLogo size="sm" showText={false} clickable={false} />
-          <div className="mt-2 font-display text-xs font-bold text-white tracking-wide">
-            ORBIT
+      {/* CENTER NODE: Permanent Orbit Core Anchor (With live active subscriptions count) */}
+      <div className="relative z-20 w-[140px] h-[140px] rounded-[24px] bg-[#0b0f19] border border-slate-800 shadow-[0_0_35px_rgba(6,182,212,0.08)] flex flex-col items-center justify-center p-3 text-center transition-all duration-300">
+        {activeHoveredItem ? (
+          // Hover detail panel
+          <div className="w-full flex flex-col justify-between h-full py-1 animate-fadeIn">
+            <div>
+              <div className="text-[9px] uppercase font-mono tracking-wider text-slate-500 font-semibold truncate">
+                {activeHoveredItem.category}
+              </div>
+              <div className="text-xs font-bold text-white leading-tight font-display tracking-tight truncate mt-0.5">
+                {activeHoveredItem.name}
+              </div>
+            </div>
+            
+            <div className="space-y-1">
+              <div className="text-sm font-black text-cyan-400 font-mono">
+                {activeHoveredItem.price}
+                <span className="text-[9px] text-slate-500 font-medium font-sans lowercase">
+                  /{activeHoveredItem.frequency === 'monthly' ? 'mo' : activeHoveredItem.frequency === 'yearly' ? 'yr' : 'day'}
+                </span>
+              </div>
+              <div className={`text-[8px] font-bold tracking-wide uppercase px-2 py-0.5 rounded-full inline-block ${
+                activeHoveredItem.status === 'renewing-soon' 
+                  ? 'bg-amber-950/60 text-amber-300 border border-amber-800' 
+                  : activeHoveredItem.status === 'active'
+                  ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-800'
+                  : activeHoveredItem.status === 'cancelled'
+                  ? 'bg-rose-950/60 text-rose-300 border border-rose-800'
+                  : 'bg-slate-900 text-slate-400 border border-slate-800'
+              }`}>
+                {activeHoveredItem.statusText}
+              </div>
+            </div>
           </div>
-          <div className="text-[9px] font-mono text-cyan-400 uppercase tracking-widest font-semibold mt-1">
-            ACTIVE CORE
+        ) : (
+          // Default Core State showing live tracked counts
+          <div className="flex flex-col items-center justify-center animate-fadeIn">
+            <OrbitLogo size="sm" showText={false} clickable={false} />
+            <div className="mt-2 font-display text-xs font-bold text-white tracking-wide">
+              ORBIT
+            </div>
+            <div className="text-[9px] font-mono text-cyan-400 uppercase tracking-widest font-bold mt-1">
+              {activeCount} tracked
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Dynamic Status Legend at the Bottom */}
