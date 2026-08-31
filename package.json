@@ -8,7 +8,7 @@
   "main": "src/server.js",
   "type": "module",
   "scripts": {
-    "build": "npm install --prefix frontend && npm --prefix frontend run build",
+    "build": "npm install && npm install --prefix frontend && npm --prefix frontend run build",
     "start": "NODE_ENV=production node src/server.js",
     "dev": "nodemon src/server.js",
     "client": "npm --prefix frontend run dev",
