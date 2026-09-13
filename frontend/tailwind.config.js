@@ -4,47 +4,45 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
-  darkMode: 'class',
   theme: {
     extend: {
       colors: {
-        orbit: {
-          50: '#eef2ff',
-          100: '#e0e7ff',
-          200: '#c7d2fe',
-          300: '#a5b4fc',
-          400: '#818cf8',
-          500: '#6366f1',
-          600: '#4f46e5', // Primary Indigo
-          700: '#4338ca',
-          800: '#3730a3',
-          900: '#312e81',
-          950: '#1e1b4b',
+        brutal: {
+          bg: '#F7F5F0',
+          card: '#FFFFFF',
+          yellow: '#F5D90A',
+          yellowHover: '#E5C900',
+          black: '#111111',
+          border: '#111111',
+          muted: '#666666',
+          gray: '#EFECE6',
+          grayDark: '#E0DDD5',
+          green: '#22C55E',
+          greenBg: '#DCFCE7',
+          red: '#EF4444',
+          redBg: '#FEE2E2',
+          blue: '#3B82F6',
+          blueBg: '#DBEAFE',
+          purple: '#A855F7',
+          purpleBg: '#F3E8FF',
         },
-        space: {
-          900: '#0b0f19',
-          950: '#060911',
-          800: '#111827',
-          700: '#1f2937',
-        }
+      },
+      boxShadow: {
+        'brutal-sm': '2px 2px 0px #111111',
+        'brutal': '4px 4px 0px #111111',
+        'brutal-lg': '6px 6px 0px #111111',
+        'brutal-xl': '8px 8px 0px #111111',
+        'brutal-yellow': '4px 4px 0px #F5D90A',
+        'brutal-active': '0px 0px 0px #111111',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
         display: ['Space Grotesk', 'system-ui', '-apple-system', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
       },
-      animation: {
-        'spin-slow': 'spin 20s linear infinite',
-        'pulse-glow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'orbit-1': 'orbit 12s linear infinite',
-        'orbit-2': 'orbit 18s linear infinite reverse',
-        'orbit-3': 'orbit 25s linear infinite',
+      borderWidth: {
+        '3': '3px',
       },
-      keyframes: {
-        orbit: {
-          '0%': { transform: 'rotate(0deg)' },
-          '100%': { transform: 'rotate(360deg)' },
-        }
-      }
     },
   },
   plugins: [],

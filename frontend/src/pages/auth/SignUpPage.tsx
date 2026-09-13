@@ -3,7 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { OrbitLogo } from '../../components/common/OrbitLogo';
-import { Lock, Mail, User as UserIcon, ArrowRight, AlertCircle } from 'lucide-react';
+import { Button } from '../../components/ui/Button';
+import { Input } from '../../components/ui/Input';
+import { ArrowRight, AlertCircle, Check } from 'lucide-react';
 
 export const SignUpPage: React.FC = () => {
   const [name, setName] = useState('');
@@ -31,23 +33,70 @@ export const SignUpPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-[#070b12] text-slate-100">
-      <div className="w-full max-w-md space-y-6">
+    <div className="min-h-screen bg-[#F7F5F0] flex items-center justify-center p-4 sm:p-6 lg:p-12">
+      <div className="w-full max-w-5xl grid lg:grid-cols-12 border-3 border-black shadow-[8px_8px_0px_#111] overflow-hidden bg-white">
         
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <div className="flex justify-center mb-4">
+        {/* Left Side: Yellow Panel */}
+        <div className="lg:col-span-5 bg-[#F5D90A] p-8 sm:p-10 border-b-3 lg:border-b-0 lg:border-r-3 border-black flex flex-col justify-between space-y-8">
+          <div className="space-y-6">
             <OrbitLogo size="lg" />
+
+            <div className="space-y-3 pt-4">
+              <span className="bg-black text-[#F5D90A] font-mono font-black text-xs px-2 py-1 uppercase tracking-wider">
+                JOIN THE FLEET
+              </span>
+              <h1 className="text-3xl sm:text-4xl font-display font-black text-black leading-tight uppercase">
+                START TRACKING IN SECONDS.
+              </h1>
+              <p className="text-sm font-medium text-black leading-relaxed">
+                Create your developer account to take back control of recurring subscriptions, SaaS spend, and automated renewal workflows.
+              </p>
+            </div>
+
+            {/* Perks */}
+            <div className="space-y-3 pt-2">
+              <div className="flex items-center gap-2.5 text-xs font-mono font-bold text-black">
+                <span className="w-5 h-5 bg-black text-[#F5D90A] flex items-center justify-center border border-black shrink-0">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                </span>
+                <span>Zero Hidden Fees • 100% Free</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-xs font-mono font-bold text-black">
+                <span className="w-5 h-5 bg-black text-[#F5D90A] flex items-center justify-center border border-black shrink-0">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                </span>
+                <span>Automated Email Workflow Engine</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-xs font-mono font-bold text-black">
+                <span className="w-5 h-5 bg-black text-[#F5D90A] flex items-center justify-center border border-black shrink-0">
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                </span>
+                <span>USD, EUR, and INR Currency Support</span>
+              </div>
+            </div>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">
-            Create an Orbit Account
-          </h1>
+
+          <div className="p-4 bg-white border-2 border-black shadow-[3px_3px_0px_#111] text-xs font-mono">
+            <div className="font-bold text-black">ENCRYPTION SECURE</div>
+            <div className="text-neutral-700 mt-1">
+              Bcrypt passwords & JWT bearer authenticated.
+            </div>
+          </div>
         </div>
 
-        {/* Card */}
-        <div className="p-6 sm:p-8 rounded-2xl bg-[#0e1424] border border-slate-800 shadow-2xl space-y-5">
+        {/* Right Side: Form */}
+        <div className="lg:col-span-7 p-8 sm:p-12 bg-white flex flex-col justify-center space-y-6">
+          <div className="space-y-2">
+            <h2 className="text-2xl sm:text-3xl font-display font-black text-black uppercase tracking-tight">
+              CREATE YOUR ACCOUNT
+            </h2>
+            <p className="text-sm font-medium text-neutral-600">
+              Sign up today and get total visibility over all your subscriptions.
+            </p>
+          </div>
+
           {error && (
-            <div className="p-3 rounded-xl bg-rose-950/50 border border-rose-800 text-rose-300 text-xs flex items-center gap-2">
+            <div className="p-3 bg-[#FEE2E2] border-2 border-[#EF4444] text-[#B91C1C] text-xs font-mono font-bold flex items-center gap-2 shadow-[2px_2px_0px_#EF4444]">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
@@ -55,79 +104,64 @@ export const SignUpPage: React.FC = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                Name
-              </label>
-              <div className="relative">
-                <UserIcon className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Mohit"
-                  className="w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder:text-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                />
-              </div>
+              <Input
+                label="Full Name"
+                type="text"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Mohit"
+              />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                Email
-              </label>
-              <div className="relative">
-                <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="developer@orbit.dev"
-                  className="w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder:text-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                />
-              </div>
+              <Input
+                label="Email Address"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="developer@orbit.dev"
+              />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                Password
-              </label>
-              <div className="relative">
-                <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="password"
-                  required
-                  minLength={6}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••••••"
-                  className="w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder:text-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                />
-              </div>
+              <Input
+                label="Password (min 6 chars)"
+                type="password"
+                required
+                minLength={6}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••••••"
+              />
             </div>
 
-            <button
+            <Button
               type="submit"
+              variant="primary"
+              size="lg"
+              fullWidth
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-semibold text-sm shadow-md shadow-indigo-600/25 transition-all disabled:opacity-50"
+              className="gap-2 text-base mt-2"
             >
-              <span>{loading ? 'Creating account...' : 'Create Account'}</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
+              <span>{loading ? 'CREATING ACCOUNT...' : 'CREATE ACCOUNT'}</span>
+              <ArrowRight className="w-5 h-5 stroke-[3]" />
+            </Button>
           </form>
 
-          <div className="pt-4 border-t border-slate-800 text-center text-xs text-slate-400">
-            Already have an account?{' '}
-            <Link to="/login" className="text-indigo-400 font-semibold hover:underline">
-              Log in
+          <div className="pt-4 border-t-2 border-black flex items-center justify-between text-xs font-mono font-bold">
+            <span className="text-neutral-700">Already have an account?</span>
+            <Link to="/login" className="text-black bg-[#F5D90A] px-2 py-1 border border-black shadow-[1px_1px_0px_#111] hover:bg-black hover:text-white">
+              LOG IN →
             </Link>
           </div>
-        </div>
 
-        <div className="text-center">
-          <Link to="/" className="text-xs text-slate-500 hover:text-slate-400 transition-colors">
-            ← Back to Home
-          </Link>
+          <div className="text-center pt-2">
+            <Link to="/" className="text-xs font-mono font-bold text-neutral-600 hover:text-black hover:underline">
+              ← BACK TO HOME
+            </Link>
+          </div>
         </div>
 
       </div>

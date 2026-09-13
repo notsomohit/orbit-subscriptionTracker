@@ -15,9 +15,9 @@ export const OrbitLogo: React.FC<OrbitLogoProps> = ({
   className = '',
 }) => {
   const iconSizes = {
-    sm: 'w-7 h-7',
-    md: 'w-9 h-9',
-    lg: 'w-12 h-12',
+    sm: 'w-7 h-7 text-xs',
+    md: 'w-9 h-9 text-sm',
+    lg: 'w-11 h-11 text-base',
   };
 
   const textSizes = {
@@ -27,35 +27,25 @@ export const OrbitLogo: React.FC<OrbitLogoProps> = ({
   };
 
   const content = (
-    <div className={`flex items-center gap-3 select-none ${className}`}>
-      {/* Orbit Graphic Motif */}
-      <div className={`relative ${iconSizes[size]} flex items-center justify-center`}>
-        {/* Outer Glow */}
-        <div className="absolute inset-0 rounded-full bg-indigo-500/20 blur-md dark:bg-indigo-500/30" />
-        
-        {/* Core Orbit Container */}
-        <div className="relative w-full h-full rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 dark:from-indigo-600 dark:to-indigo-900 p-0.5 shadow-md flex items-center justify-center">
-          <div className="w-full h-full bg-white dark:bg-[#0b0f19] rounded-[10px] flex items-center justify-center overflow-hidden relative">
-            {/* Center Nucleus */}
-            <div className="w-2 h-2 rounded-full bg-indigo-600 dark:bg-indigo-400 shadow-[0_0_8px_#6366f1]" />
-
-            {/* Orbit Ring */}
-            <div className="absolute inset-1 rounded-full border border-dashed border-indigo-400/40 dark:border-indigo-400/30 animate-spin-slow" />
-
-            {/* Orbiting Satellite Dot */}
-            <div className="absolute inset-0.5 animate-spin-slow">
-              <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 dark:bg-indigo-300 absolute top-0.5 left-1/2 -translate-x-1/2 shadow-[0_0_6px_#818cf8]" />
-            </div>
-          </div>
-        </div>
+    <div className={`flex items-center gap-2.5 select-none ${className}`}>
+      {/* Brutalist Logo Icon Box */}
+      <div 
+        className={`
+          ${iconSizes[size]}
+          bg-[#F5D90A] border-2 border-black shadow-[2px_2px_0px_#111]
+          flex items-center justify-center font-display font-black text-black
+          transition-transform duration-100 group-hover:translate-x-[1px] group-hover:translate-y-[1px] group-hover:shadow-none
+        `}
+      >
+        <span className="font-mono font-black tracking-tighter">O•</span>
       </div>
 
       {showText && (
-        <div className="flex flex-col">
-          <span className={`font-bold tracking-tight text-slate-900 dark:text-white ${textSizes[size]} flex items-center gap-1.5`}>
-            Orbit
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400 animate-pulse" />
+        <div className="flex items-center">
+          <span className={`font-display font-black tracking-wider uppercase text-black ${textSizes[size]}`}>
+            ORBIT
           </span>
+          <span className="w-2 h-2 bg-[#F5D90A] border border-black ml-1 shadow-[1px_1px_0px_#111]" />
         </div>
       )}
     </div>
@@ -63,7 +53,7 @@ export const OrbitLogo: React.FC<OrbitLogoProps> = ({
 
   if (clickable) {
     return (
-      <Link to="/" className="inline-flex items-center group transition-transform duration-150 hover:scale-[1.02]">
+      <Link to="/" className="inline-flex items-center group">
         {content}
       </Link>
     );

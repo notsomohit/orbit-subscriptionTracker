@@ -20,23 +20,19 @@ import type {
 import {
   Search,
   Plus,
-  MoreVertical,
-  CheckCircle2,
-  XCircle,
-  Clock,
   Trash2,
   Edit2,
-  Calendar,
-  DollarSign,
-  CreditCard,
   ChevronLeft,
   ChevronRight,
-  Download,
-  X,
+  Filter,
 } from 'lucide-react';
-import { Menu, Transition, Dialog } from '@headlessui/react';
-import { Fragment } from 'react';
 import dayjs from 'dayjs';
+import { Button } from '../../components/ui/Button';
+import { Card } from '../../components/ui/Card';
+import { Badge } from '../../components/ui/Badge';
+import { Modal } from '../../components/ui/Modal';
+import { Input } from '../../components/ui/Input';
+import { Select } from '../../components/ui/Select';
 
 export const Subscriptions: React.FC = () => {
   const queryClient = useQueryClient();
@@ -48,7 +44,6 @@ export const Subscriptions: React.FC = () => {
   // Modal States
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editSubscription, setEditSubscription] = useState<Subscription | null>(null);
-  const [selectedSub, setSelectedSub] = useState<Subscription | null>(null);
 
   // Form State for Add / Edit
   const [formName, setFormName] = useState('');
@@ -144,15 +139,15 @@ export const Subscriptions: React.FC = () => {
           const sub = info.row.original;
           return (
             <div>
-              <div className="font-bold text-slate-900 dark:text-white text-sm">
+              <div className="font-display font-bold text-black text-sm uppercase">
                 {sub.name}
               </div>
-              <div className="text-xs text-slate-500 dark:text-slate-400 capitalize flex items-center gap-1.5 mt-0.5">
-                <span className="px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-800 text-[10px] font-mono">
+              <div className="text-xs text-neutral-700 capitalize flex items-center gap-1.5 mt-0.5">
+                <span className="px-1.5 py-0.2 bg-[#EFECE6] border border-black text-[10px] font-mono font-bold">
                   {sub.category}
                 </span>
                 <span>•</span>
-                <span>{sub.paymentMethod}</span>
+                <span className="font-mono text-[11px]">{sub.paymentMethod}</span>
               </div>
             </div>
           );
@@ -166,10 +161,10 @@ export const Subscriptions: React.FC = () => {
           const symbol = sub.currency === 'USD' ? '$' : sub.currency === 'EUR' ? '€' : '₹';
           return (
             <div className="font-mono">
-              <span className="font-bold text-slate-900 dark:text-white text-sm">
+              <span className="font-black text-black text-sm">
                 {symbol}{sub.price}
               </span>
-              <span className="text-xs text-slate-500 dark:text-slate-400 ml-1">
+              <span className="text-xs text-neutral-700 ml-1 font-bold">
                 {sub.currency}
               </span>
             </div>
@@ -178,13 +173,13 @@ export const Subscriptions: React.FC = () => {
       },
       {
         accessorKey: 'frequency',
-        header: 'Billing Frequency',
+        header: 'Frequency',
         cell: (info) => {
           const freq = info.getValue() as string;
           return (
-            <span className="capitalize text-xs font-semibold px-2 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/80">
+            <Badge variant="outline" size="sm">
               {freq}
-            </span>
+            </Badge>
           );
         },
       },
@@ -193,37 +188,11 @@ export const Subscriptions: React.FC = () => {
         header: 'Status',
         cell: (info) => {
           const status = info.getValue() as SubscriptionStatus;
-          const config = {
-            active: {
-              bg: 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300',
-              icon: CheckCircle2,
-              label: 'Active',
-            },
-            cancelled: {
-              bg: 'bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300',
-              icon: XCircle,
-              label: 'Cancelled',
-            },
-            expired: {
-              bg: 'bg-rose-50 dark:bg-rose-950/60 border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300',
-              icon: Clock,
-              label: 'Expired',
-            },
-          }[status] || {
-            bg: 'bg-slate-100 text-slate-700',
-            icon: CheckCircle2,
-            label: status,
-          };
-
-          const Icon = config.icon;
-
+          const badgeVariant = status === 'active' ? 'active' : status === 'cancelled' ? 'cancelled' : 'expired';
           return (
-            <span
-              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${config.bg}`}
-            >
-              <Icon className="w-3.5 h-3.5" />
-              <span>{config.label}</span>
-            </span>
+            <Badge variant={badgeVariant} size="sm">
+              {status}
+            </Badge>
           );
         },
       },
@@ -232,7 +201,7 @@ export const Subscriptions: React.FC = () => {
         header: 'Start Date',
         cell: (info) => {
           return (
-            <span className="text-xs font-mono text-slate-600 dark:text-slate-400">
+            <span className="text-xs font-mono font-bold text-black">
               {dayjs(info.getValue() as string).format('YYYY-MM-DD')}
             </span>
           );
@@ -246,12 +215,12 @@ export const Subscriptions: React.FC = () => {
           const formatted = dayjs(sub.renewalDate).format('YYYY-MM-DD');
           return (
             <div>
-              <span className="text-xs font-mono font-semibold text-slate-900 dark:text-white">
+              <span className="text-xs font-mono font-black text-black">
                 {formatted}
               </span>
               {sub.status === 'active' && (
-                <div className="text-[10px] text-indigo-500 font-mono">
-                  Upstash workflow active
+                <div className="text-[10px] font-mono font-bold text-[#15803D]">
+                  UPSTASH WORKFLOW ACTIVE
                 </div>
               )}
             </div>
@@ -260,25 +229,29 @@ export const Subscriptions: React.FC = () => {
       },
       {
         id: 'actions',
-        header: '',
+        header: 'Actions',
         cell: (info) => {
           const sub = info.row.original;
 
           return (
-            <div className="flex items-center justify-end gap-1">
+            <div className="flex items-center justify-end gap-2">
               <button
                 onClick={() => handleOpenEdit(sub)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-slate-100 dark:hover:bg-slate-800"
+                className="p-1.5 bg-white border-2 border-black shadow-[2px_2px_0px_#111] hover:bg-[#F5D90A] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all"
                 title="Edit Subscription"
               >
-                <Edit2 className="w-4 h-4" />
+                <Edit2 className="w-3.5 h-3.5 stroke-[2.5]" />
               </button>
               <button
-                onClick={() => deleteMutation.mutate(sub._id)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+                onClick={() => {
+                  if (confirm(`Delete subscription "${sub.name}"?`)) {
+                    deleteMutation.mutate(sub._id);
+                  }
+                }}
+                className="p-1.5 bg-[#FEE2E2] border-2 border-black shadow-[2px_2px_0px_#111] hover:bg-[#EF4444] hover:text-white active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all text-[#B91C1C]"
                 title="Delete Subscription"
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="w-3.5 h-3.5 stroke-[2.5]" />
               </button>
             </div>
           );
@@ -297,91 +270,93 @@ export const Subscriptions: React.FC = () => {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fadeIn">
       
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b-2 border-black">
         <div>
-          <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            Subscriptions Directory
+          <h1 className="text-3xl sm:text-4xl font-display font-black text-black uppercase tracking-tight">
+            SUBSCRIPTIONS DIRECTORY
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            Manage your recurring subscriptions directly backed by MongoDB and Upstash reminders.
+          <p className="text-xs sm:text-sm font-medium text-neutral-700 mt-0.5">
+            Manage your recurring commitments backed by MongoDB and Upstash reminders.
           </p>
         </div>
 
-        <button
+        <Button
+          variant="primary"
+          size="md"
           onClick={() => {
             resetForm();
             setCreateModalOpen(true);
           }}
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-semibold text-xs sm:text-sm shadow-md shadow-indigo-600/20 transition-all self-start sm:self-auto"
+          className="gap-2 self-start sm:self-auto"
         >
-          <Plus className="w-4 h-4" />
-          <span>New Subscription</span>
-        </button>
+          <Plus className="w-4 h-4 stroke-[3]" />
+          <span>NEW SUBSCRIPTION</span>
+        </Button>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="p-4 rounded-2xl bg-white dark:bg-[#0e1424] border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+      <Card variant="white" borderWidth={2} shadow="md" className="p-4 flex flex-col md:flex-row items-center justify-between gap-4">
         
         {/* Search */}
-        <div className="relative w-full md:w-72">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+        <div className="relative w-full md:w-80">
+          <Search className="w-4 h-4 text-black absolute left-3 top-1/2 -translate-y-1/2 stroke-[2.5]" />
           <input
             type="text"
             value={globalFilter}
             onChange={(e) => setGlobalFilter(e.target.value)}
-            placeholder="Search name, payment method..."
-            className="w-full pl-9 pr-4 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="Search name, payment, category..."
+            className="w-full pl-9 pr-4 py-2 bg-[#F7F5F0] border-2 border-black text-xs font-mono text-black placeholder:text-neutral-500 focus:outline-none focus:shadow-[3px_3px_0px_#F5D90A]"
           />
         </div>
 
         {/* Filters */}
         <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
           {/* Status Filter */}
-          <div className="flex items-center gap-1.5 text-xs">
-            <span className="text-slate-500 font-medium">Status:</span>
+          <div className="flex items-center gap-1.5 text-xs font-mono font-bold">
+            <span className="uppercase">STATUS:</span>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-2.5 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="px-2.5 py-1.5 bg-white border-2 border-black text-xs font-mono font-bold text-black focus:outline-none focus:shadow-[2px_2px_0px_#F5D90A] cursor-pointer"
             >
-              <option value="all">All (active, cancelled, expired)</option>
-              <option value="active">Active</option>
-              <option value="cancelled">Cancelled</option>
-              <option value="expired">Expired</option>
+              <option value="all">ALL STATUSES</option>
+              <option value="active">ACTIVE</option>
+              <option value="cancelled">CANCELLED</option>
+              <option value="expired">EXPIRED</option>
             </select>
           </div>
 
           {/* Category Filter */}
-          <div className="flex items-center gap-1.5 text-xs">
-            <span className="text-slate-500 font-medium">Category:</span>
+          <div className="flex items-center gap-1.5 text-xs font-mono font-bold">
+            <span className="uppercase">CATEGORY:</span>
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="px-2.5 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="px-2.5 py-1.5 bg-white border-2 border-black text-xs font-mono font-bold text-black focus:outline-none focus:shadow-[2px_2px_0px_#F5D90A] cursor-pointer"
             >
-              <option value="all">All Categories</option>
-              <option value="sports">Sports</option>
-              <option value="news">News</option>
-              <option value="entertainment">Entertainment</option>
-              <option value="lifestyle">Lifestyle</option>
-              <option value="technology">Technology</option>
-              <option value="finance">Finance</option>
-              <option value="politics">Politics</option>
+              <option value="all">ALL CATEGORIES</option>
+              <option value="sports">SPORTS</option>
+              <option value="news">NEWS</option>
+              <option value="entertainment">ENTERTAINMENT</option>
+              <option value="lifestyle">LIFESTYLE</option>
+              <option value="technology">TECHNOLOGY</option>
+              <option value="finance">FINANCE</option>
+              <option value="politics">POLITICS</option>
             </select>
           </div>
 
           {/* Currency Filter */}
-          <div className="flex items-center gap-1.5 text-xs">
-            <span className="text-slate-500 font-medium">Currency:</span>
+          <div className="flex items-center gap-1.5 text-xs font-mono font-bold">
+            <span className="uppercase">CURRENCY:</span>
             <select
               value={currencyFilter}
               onChange={(e) => setCurrencyFilter(e.target.value)}
-              className="px-2.5 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="px-2.5 py-1.5 bg-white border-2 border-black text-xs font-mono font-bold text-black focus:outline-none focus:shadow-[2px_2px_0px_#F5D90A] cursor-pointer"
             >
-              <option value="all">All Currencies</option>
+              <option value="all">ALL CURRENCIES</option>
               <option value="USD">USD ($)</option>
               <option value="EUR">EUR (€)</option>
               <option value="RS">RS (₹)</option>
@@ -389,22 +364,22 @@ export const Subscriptions: React.FC = () => {
           </div>
         </div>
 
-      </div>
+      </Card>
 
       {/* TanStack Table Container */}
-      <div className="rounded-2xl overflow-hidden bg-white dark:bg-[#0e1424] border border-slate-200/80 dark:border-slate-800 shadow-sm">
+      <div className="border-3 border-black shadow-[6px_6px_0px_#111] bg-white overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr
                   key={headerGroup.id}
-                  className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/50"
+                  className="border-b-2 border-black bg-[#F5D90A]"
                 >
                   {headerGroup.headers.map((header) => (
                     <th
                       key={header.id}
-                      className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400"
+                      className="px-5 py-3 text-xs font-display font-black uppercase tracking-wider text-black border-r-2 border-black last:border-r-0"
                     >
                       {flexRender(header.column.columnDef.header, header.getContext())}
                     </th>
@@ -412,15 +387,15 @@ export const Subscriptions: React.FC = () => {
                 </tr>
               ))}
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
+            <tbody className="divide-y-2 divide-black">
               {table.getRowModel().rows.length > 0 ? (
                 table.getRowModel().rows.map((row) => (
                   <tr
                     key={row.id}
-                    className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors"
+                    className="hover:bg-[#FAF9F5] transition-colors"
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="px-5 py-3.5 text-xs">
+                      <td key={cell.id} className="px-5 py-3.5 text-xs border-r border-black/20 last:border-r-0">
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </td>
                     ))}
@@ -428,8 +403,8 @@ export const Subscriptions: React.FC = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={columns.length} className="px-5 py-12 text-center text-slate-400 text-sm">
-                    No subscriptions match your query.
+                  <td colSpan={columns.length} className="px-5 py-12 text-center text-neutral-700 font-mono font-bold text-sm">
+                    NO SUBSCRIPTIONS MATCH YOUR QUERY.
                   </td>
                 </tr>
               )}
@@ -437,275 +412,214 @@ export const Subscriptions: React.FC = () => {
           </table>
         </div>
 
-        {/* Pagination */}
-        <div className="p-4 border-t border-slate-200/80 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+        {/* Pagination Bar */}
+        <div className="p-4 border-t-2 border-black bg-[#EFECE6] flex items-center justify-between text-xs font-mono font-bold">
           <div>
-            Total: <span className="font-semibold text-slate-900 dark:text-white">{filteredData.length}</span> subscriptions
+            TOTAL: <span className="bg-[#F5D90A] px-1.5 py-0.5 border border-black">{filteredData.length}</span> SUBSCRIPTIONS
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <button
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
-              className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 disabled:opacity-40 hover:bg-slate-100 dark:hover:bg-slate-800"
+              className="px-2 py-1 bg-white border-2 border-black shadow-[2px_2px_0px_#111] hover:bg-[#F5D90A] disabled:opacity-40 disabled:hover:bg-white active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all cursor-pointer"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-4 h-4 stroke-[3]" />
             </button>
             <span>
-              Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount() || 1}
+              PAGE {table.getState().pagination.pageIndex + 1} OF {table.getPageCount() || 1}
             </span>
             <button
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
-              className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 disabled:opacity-40 hover:bg-slate-100 dark:hover:bg-slate-800"
+              className="px-2 py-1 bg-white border-2 border-black shadow-[2px_2px_0px_#111] hover:bg-[#F5D90A] disabled:opacity-40 disabled:hover:bg-white active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all cursor-pointer"
             >
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-4 h-4 stroke-[3]" />
             </button>
           </div>
         </div>
       </div>
 
-      {/* Add / Edit Subscription Dialog */}
-      <Transition appear show={createModalOpen || !!editSubscription} as={Fragment}>
-        <Dialog
-          as="div"
-          className="relative z-50"
-          onClose={() => {
-            setCreateModalOpen(false);
-            setEditSubscription(null);
+      {/* Add / Edit Subscription Modal */}
+      <Modal
+        isOpen={createModalOpen || !!editSubscription}
+        onClose={() => {
+          setCreateModalOpen(false);
+          setEditSubscription(null);
+        }}
+        title={editSubscription ? 'EDIT SUBSCRIPTION' : 'CREATE NEW SUBSCRIPTION'}
+        maxWidth="lg"
+      >
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (editSubscription) {
+              updateMutation.mutate({
+                id: editSubscription._id,
+                updates: {
+                  name: formName,
+                  price: Number(formPrice),
+                  currency: formCurrency,
+                  frequency: formFrequency,
+                  category: formCategory,
+                  paymentMethod: formPaymentMethod,
+                  startDate: formStartDate,
+                  status: formStatus,
+                },
+              });
+            } else {
+              createMutation.mutate({
+                name: formName,
+                price: Number(formPrice),
+                currency: formCurrency,
+                frequency: formFrequency,
+                category: formCategory,
+                paymentMethod: formPaymentMethod,
+                startDate: formStartDate,
+              });
+            }
           }}
+          className="space-y-4 text-xs font-mono"
         >
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-200"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-150"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm" />
-          </Transition.Child>
+          <div>
+            <Input
+              label="Subscription Name (2-100 characters)"
+              type="text"
+              required
+              minLength={2}
+              maxLength={100}
+              value={formName}
+              onChange={(e) => setFormName(e.target.value)}
+              placeholder="e.g. GitHub Copilot, Netflix, AWS"
+            />
+          </div>
 
-          <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center">
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-200"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
-                leave="ease-in duration-150"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
-              >
-                <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 p-6 text-left align-middle shadow-2xl transition-all">
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-                    <Dialog.Title as="h3" className="text-lg font-bold text-slate-900 dark:text-white">
-                      {editSubscription ? 'Edit Subscription' : 'Create New Subscription'}
-                    </Dialog.Title>
-                    <button
-                      onClick={() => {
-                        setCreateModalOpen(false);
-                        setEditSubscription(null);
-                      }}
-                      className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1"
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Input
+                label="Price"
+                type="number"
+                required
+                min={0}
+                step="any"
+                value={formPrice}
+                onChange={(e) => setFormPrice(Number(e.target.value))}
+              />
+            </div>
 
-                  <form
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      if (editSubscription) {
-                        updateMutation.mutate({
-                          id: editSubscription._id,
-                          updates: {
-                            name: formName,
-                            price: Number(formPrice),
-                            currency: formCurrency,
-                            frequency: formFrequency,
-                            category: formCategory,
-                            paymentMethod: formPaymentMethod,
-                            startDate: formStartDate,
-                            status: formStatus,
-                          },
-                        });
-                      } else {
-                        createMutation.mutate({
-                          name: formName,
-                          price: Number(formPrice),
-                          currency: formCurrency,
-                          frequency: formFrequency,
-                          category: formCategory,
-                          paymentMethod: formPaymentMethod,
-                          startDate: formStartDate,
-                        });
-                      }
-                    }}
-                    className="mt-4 space-y-4 text-xs"
-                  >
-                    <div>
-                      <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                        Subscription Name (2-100 characters)
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        minLength={2}
-                        maxLength={100}
-                        value={formName}
-                        onChange={(e) => setFormName(e.target.value)}
-                        placeholder="e.g. Netflix, GitHub Copilot"
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                          Price
-                        </label>
-                        <input
-                          type="number"
-                          required
-                          min={0}
-                          step="any"
-                          value={formPrice}
-                          onChange={(e) => setFormPrice(Number(e.target.value))}
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                          Currency (Schema Enum)
-                        </label>
-                        <select
-                          value={formCurrency}
-                          onChange={(e) => setFormCurrency(e.target.value as SubscriptionCurrency)}
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        >
-                          <option value="USD">USD ($)</option>
-                          <option value="EUR">EUR (€)</option>
-                          <option value="RS">RS (₹)</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                          Frequency
-                        </label>
-                        <select
-                          value={formFrequency}
-                          onChange={(e) => setFormFrequency(e.target.value as SubscriptionFrequency)}
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        >
-                          <option value="daily">daily (1 day)</option>
-                          <option value="weekly">weekly (7 days)</option>
-                          <option value="monthly">monthly (30 days)</option>
-                          <option value="yearly">yearly (365 days)</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                          Category
-                        </label>
-                        <select
-                          value={formCategory}
-                          onChange={(e) => setFormCategory(e.target.value as SubscriptionCategory)}
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        >
-                          <option value="technology">Technology</option>
-                          <option value="entertainment">Entertainment</option>
-                          <option value="finance">Finance</option>
-                          <option value="lifestyle">Lifestyle</option>
-                          <option value="sports">Sports</option>
-                          <option value="news">News</option>
-                          <option value="politics">Politics</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                          Payment Method
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={formPaymentMethod}
-                          onChange={(e) => setFormPaymentMethod(e.target.value)}
-                          placeholder="e.g. Credit Card, UPI, PayPal"
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                          Start Date (Past or Today)
-                        </label>
-                        <input
-                          type="date"
-                          required
-                          max={dayjs().format('YYYY-MM-DD')}
-                          value={formStartDate}
-                          onChange={(e) => setFormStartDate(e.target.value)}
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        />
-                      </div>
-                    </div>
-
-                    {editSubscription && (
-                      <div>
-                        <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                          Status (active, cancelled, expired)
-                        </label>
-                        <select
-                          value={formStatus}
-                          onChange={(e) => setFormStatus(e.target.value as SubscriptionStatus)}
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        >
-                          <option value="active">Active</option>
-                          <option value="cancelled">Cancelled</option>
-                          <option value="expired">Expired</option>
-                        </select>
-                      </div>
-                    )}
-
-                    <div className="pt-3 flex gap-2">
-                      <button
-                        type="submit"
-                        disabled={createMutation.isPending || updateMutation.isPending}
-                        className="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs transition-colors shadow-md shadow-indigo-600/20 text-center"
-                      >
-                        {createMutation.isPending || updateMutation.isPending
-                          ? 'Saving...'
-                          : editSubscription
-                          ? 'Update Subscription'
-                          : 'Create & Schedule Workflow'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setCreateModalOpen(false);
-                          setEditSubscription(null);
-                        }}
-                        className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </form>
-                </Dialog.Panel>
-              </Transition.Child>
+            <div>
+              <Select
+                label="Currency"
+                value={formCurrency}
+                onChange={(e) => setFormCurrency(e.target.value as SubscriptionCurrency)}
+                options={[
+                  { value: 'USD', label: 'USD ($)' },
+                  { value: 'EUR', label: 'EUR (€)' },
+                  { value: 'RS', label: 'RS (₹)' },
+                ]}
+              />
             </div>
           </div>
-        </Dialog>
-      </Transition>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Select
+                label="Frequency"
+                value={formFrequency}
+                onChange={(e) => setFormFrequency(e.target.value as SubscriptionFrequency)}
+                options={[
+                  { value: 'daily', label: 'daily (1 day)' },
+                  { value: 'weekly', label: 'weekly (7 days)' },
+                  { value: 'monthly', label: 'monthly (30 days)' },
+                  { value: 'yearly', label: 'yearly (365 days)' },
+                ]}
+              />
+            </div>
+
+            <div>
+              <Select
+                label="Category"
+                value={formCategory}
+                onChange={(e) => setFormCategory(e.target.value as SubscriptionCategory)}
+                options={[
+                  { value: 'technology', label: 'Technology' },
+                  { value: 'entertainment', label: 'Entertainment' },
+                  { value: 'finance', label: 'Finance' },
+                  { value: 'lifestyle', label: 'Lifestyle' },
+                  { value: 'sports', label: 'Sports' },
+                  { value: 'news', label: 'News' },
+                  { value: 'politics', label: 'Politics' },
+                ]}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Input
+                label="Payment Method"
+                type="text"
+                required
+                value={formPaymentMethod}
+                onChange={(e) => setFormPaymentMethod(e.target.value)}
+                placeholder="e.g. Visa, UPI, PayPal"
+              />
+            </div>
+
+            <div>
+              <Input
+                label="Start Date"
+                type="date"
+                required
+                max={dayjs().format('YYYY-MM-DD')}
+                value={formStartDate}
+                onChange={(e) => setFormStartDate(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {editSubscription && (
+            <div>
+              <Select
+                label="Status"
+                value={formStatus}
+                onChange={(e) => setFormStatus(e.target.value as SubscriptionStatus)}
+                options={[
+                  { value: 'active', label: 'Active' },
+                  { value: 'cancelled', label: 'Cancelled' },
+                  { value: 'expired', label: 'Expired' },
+                ]}
+              />
+            </div>
+          )}
+
+          <div className="pt-3 flex gap-3">
+            <Button
+              type="submit"
+              variant="primary"
+              size="md"
+              fullWidth
+              disabled={createMutation.isPending || updateMutation.isPending}
+            >
+              {createMutation.isPending || updateMutation.isPending
+                ? 'SAVING...'
+                : editSubscription
+                ? 'UPDATE SUBSCRIPTION'
+                : 'CREATE & SCHEDULE WORKFLOW'}
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              size="md"
+              onClick={() => {
+                setCreateModalOpen(false);
+                setEditSubscription(null);
+              }}
+            >
+              CANCEL
+            </Button>
+          </div>
+        </form>
+      </Modal>
 
     </div>
   );
