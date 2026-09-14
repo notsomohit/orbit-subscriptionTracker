@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Play } from 'lucide-react';
 import { api } from '../../lib/api';
 import { Card } from '../../components/ui/Card';
@@ -8,21 +8,6 @@ import { Badge } from '../../components/ui/Badge';
 export const ApiSpecs: React.FC = () => {
   const [responseOutput, setResponseOutput] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const scrollToHash = () => {
-      if (window.location.hash === '#api-reference') {
-        const el = document.getElementById('api-reference');
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth' });
-        }
-      }
-    };
-    // Scroll on mount / hash change
-    scrollToHash();
-    window.addEventListener('hashchange', scrollToHash);
-    return () => window.removeEventListener('hashchange', scrollToHash);
-  }, []);
 
   const handleTestGet = async () => {
     setLoading(true);
@@ -48,7 +33,7 @@ export const ApiSpecs: React.FC = () => {
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6 items-start" id="api-reference">
-        
+
         {/* Endpoints List */}
         <div className="space-y-3">
           <div className="text-xs font-mono font-black uppercase tracking-wider text-black flex items-center gap-2">
