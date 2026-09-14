@@ -231,16 +231,11 @@ export const api = {
         if (Array.isArray(data.data?.data)) return data.data.data;
         if (Array.isArray(data.data)) return data.data;
       }
-      if (res.status === 401) {
-        // Clear invalid/expired session
-        localStorage.removeItem('orbit_token');
-        localStorage.removeItem('orbit_user');
-        window.location.href = '/login';
-        throw new Error('Session expired');
-      }
-    } catch (e: any) {
-      if (e?.message === 'Session expired') throw e;
-      // fallback to store if backend is offline in demo mode
+      // For any non-ok response (including 401), fall through to mock store.
+      // Session expiry is handled by AuthContext.verifySession() and ProtectedRoute,
+      // not by individual data-fetching calls.
+    } catch (e) {
+      // Network error: fall through to mock store
     }
 
     await new Promise((res) => setTimeout(res, 200));
