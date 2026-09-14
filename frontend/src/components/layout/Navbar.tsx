@@ -50,31 +50,31 @@ export const Navbar: React.FC = () => {
             <OrbitLogo size="md" />
 
             {!isDashboard && (
-              <nav className="hidden md:flex items-center space-x-6 text-xs font-display font-black uppercase tracking-wider text-black">
+              <nav className="hidden md:flex items-center space-x-5 text-xs font-display font-black uppercase tracking-wider text-black">
                 <a 
-                  href="#timeline" 
+                  href="#how-it-works" 
                   className="px-2 py-1 hover:bg-[#F5D90A] border border-transparent hover:border-black transition-colors"
                 >
-                  Timeline
+                  HOW IT WORKS
                 </a>
-                <a 
-                  href="#features" 
+                <Link 
+                  to="/dashboard/workflows" 
                   className="px-2 py-1 hover:bg-[#F5D90A] border border-transparent hover:border-black transition-colors"
                 >
-                  Features
-                </a>
-                <a 
-                  href="#architecture" 
+                  WORKFLOWS
+                </Link>
+                <Link 
+                  to="/dashboard/api-specs" 
                   className="px-2 py-1 hover:bg-[#F5D90A] border border-transparent hover:border-black transition-colors"
                 >
-                  Under The Hood
-                </a>
-                <a 
-                  href="#api" 
+                  API REFERENCE
+                </Link>
+                <Link 
+                  to={targetDestination} 
                   className="px-2 py-1 hover:bg-[#F5D90A] border border-transparent hover:border-black transition-colors"
                 >
-                  API Reference
-                </a>
+                  DASHBOARD
+                </Link>
               </nav>
             )}
           </div>
@@ -123,33 +123,33 @@ export const Navbar: React.FC = () => {
 
             <nav className="flex flex-col space-y-2 text-xs font-display font-black uppercase tracking-wider text-black">
               <a
-                href="#timeline"
+                href="#how-it-works"
                 onClick={() => setMobileMenuOpen(false)}
                 className="py-2.5 px-3 hover:bg-[#F5D90A] border-2 border-transparent hover:border-black"
               >
-                Timeline
+                HOW IT WORKS
               </a>
-              <a
-                href="#features"
+              <Link
+                to="/dashboard/workflows"
                 onClick={() => setMobileMenuOpen(false)}
                 className="py-2.5 px-3 hover:bg-[#F5D90A] border-2 border-transparent hover:border-black"
               >
-                Features
-              </a>
-              <a
-                href="#architecture"
+                WORKFLOWS
+              </Link>
+              <Link
+                to="/dashboard/api-specs"
                 onClick={() => setMobileMenuOpen(false)}
                 className="py-2.5 px-3 hover:bg-[#F5D90A] border-2 border-transparent hover:border-black"
               >
-                Under The Hood
-              </a>
-              <a
-                href="#api"
+                API REFERENCE
+              </Link>
+              <Link
+                to={targetDestination}
                 onClick={() => setMobileMenuOpen(false)}
                 className="py-2.5 px-3 hover:bg-[#F5D90A] border-2 border-transparent hover:border-black"
               >
-                API Reference
-              </a>
+                DASHBOARD
+              </Link>
             </nav>
 
             <div className="pt-3 border-t-2 border-black">

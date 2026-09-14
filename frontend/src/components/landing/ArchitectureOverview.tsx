@@ -54,6 +54,19 @@ export const ArchitectureOverview: React.FC = () => {
           </p>
         </div>
 
+        {/* Relocated Tech Stack Badges from Hero */}
+        <div className="mb-10 p-4 bg-white border-2 border-black shadow-[4px_4px_0px_#111] flex flex-wrap items-center gap-3">
+          <span className="font-mono text-xs font-black uppercase text-black">CORE ARCHITECTURE:</span>
+          {['Express.js 4', 'MongoDB & Mongoose', 'Upstash Workflow', 'Nodemailer SMTP', '@arcjet/node', 'TypeScript'].map((tech) => (
+            <span
+              key={tech}
+              className="px-2.5 py-1 bg-[#F5D90A] text-black font-mono font-bold text-xs border border-black shadow-[2px_2px_0px_#111]"
+            >
+              {tech}
+            </span>
+          ))}
+        </div>
+
         {/* 4-Step Technical Architecture Cards */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {steps.map((step) => {

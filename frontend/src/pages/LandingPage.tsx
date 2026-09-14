@@ -1,6 +1,9 @@
 import React from 'react';
 import { Navbar } from '../components/layout/Navbar';
 import { Hero } from '../components/landing/Hero';
+import { ReminderTimeline } from '../components/landing/ReminderTimeline';
+import { LandingFeatures } from '../components/landing/LandingFeatures';
+import { LandingStats } from '../components/landing/LandingStats';
 import { ArchitectureOverview } from '../components/landing/ArchitectureOverview';
 import { WorkflowEngine } from '../components/landing/WorkflowEngine';
 import { ApiReferenceSection } from '../components/landing/ApiReferenceSection';
@@ -13,6 +16,9 @@ export const LandingPage: React.FC = () => {
       <Navbar />
       <main className="flex-1">
         <Hero />
+        <ReminderTimeline />
+        <LandingFeatures />
+        <LandingStats />
         <ArchitectureOverview />
         <WorkflowEngine />
         <ApiReferenceSection />

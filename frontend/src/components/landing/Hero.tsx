@@ -4,6 +4,7 @@ import { ArrowRight, ArrowDown, Check } from 'lucide-react';
 import { OrbitHeroGraphic } from './OrbitHeroGraphic';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../ui/Button';
+import clumsySvg from '../../assets/illustrations/clumsy.svg';
 
 export const Hero: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
@@ -34,6 +35,15 @@ export const Hero: React.FC = () => {
               AGAIN.
             </h1>
 
+            {/* Responsive: Shrunk Clumsy Illustration below headline on mobile (< 1024px) */}
+            <div className="block lg:hidden my-2 flex justify-center">
+              <img
+                src={clumsySvg}
+                alt="Subscription chaos"
+                className="w-44 sm:w-56 max-w-full h-auto select-none pointer-events-none animate-float-clumsy"
+              />
+            </div>
+
             {/* Short Outcome-Driven Subtext */}
             <p className="text-base sm:text-lg text-neutral-800 max-w-xl font-medium leading-relaxed">
               Orbit tracks every subscription, renews nothing you forgot, and emails you 7, 5, 2 &amp; 1 days before you're billed.
@@ -55,9 +65,9 @@ export const Hero: React.FC = () => {
               </div>
 
               <div className="pt-1 flex justify-center lg:justify-start">
-                <a href="#timeline">
+                <a href="#how-it-works">
                   <Button variant="secondary" size="md" className="gap-2 text-xs">
-                    <span>HOW IT WORKS</span>
+                    <span>HOW IT WORKS ↓</span>
                     <ArrowDown className="w-4 h-4 stroke-[2.5]" />
                   </Button>
                 </a>
@@ -87,9 +97,17 @@ export const Hero: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Column: Hero Graphic with Staggered Fade-in & Toast */}
-          <div className="lg:col-span-5 flex justify-center py-4 lg:py-0">
-            <OrbitHeroGraphic />
+          {/* Right Column: Hero Graphic with Staggered Fade-in & Floating Clumsy Illustration */}
+          <div className="lg:col-span-5 flex justify-center relative py-4 lg:py-0">
+            {/* Desktop Clumsy Illustration floating behind the mockup card */}
+            <img
+              src={clumsySvg}
+              alt="Subscription chaos"
+              className="hidden lg:block absolute -top-12 -left-20 w-64 h-auto pointer-events-none z-0 select-none animate-float-clumsy opacity-90"
+            />
+            <div className="relative z-10 w-full flex justify-center">
+              <OrbitHeroGraphic />
+            </div>
           </div>
 
         </div>
