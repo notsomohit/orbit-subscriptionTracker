@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import { Badge } from '../ui/Badge';
-import { Card } from '../ui/Card';
+import { Mail, Bell } from 'lucide-react';
 
 interface SubCardItem {
   id: string;
@@ -117,18 +117,43 @@ export const OrbitHeroGraphic: React.FC = () => {
           </div>
         </div>
 
-        {/* Subscription Tiles List in Neo-Brutalist Stack */}
+        {/* Fake Email Reminder Toast (Slides in after 2s pure CSS) */}
+        <div className="animate-toast-slide">
+          <div className="p-2.5 bg-[#111111] text-white border-2 border-black shadow-[4px_4px_0px_#F5D90A] flex items-center justify-between gap-2.5">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-6 h-6 bg-[#F5D90A] text-black border border-black flex items-center justify-center shrink-0">
+                <Mail className="w-3.5 h-3.5 stroke-[3]" />
+              </div>
+              <div className="min-w-0">
+                <div className="font-mono text-[10px] font-bold text-[#F5D90A] uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 bg-[#22C55E] inline-block" />
+                  <span>UPSTASH DISPATCH · 2D NOTICE</span>
+                </div>
+                <div className="text-xs font-bold text-white truncate">
+                  Spotify Family renews in 48h (₹179.00)
+                </div>
+              </div>
+            </div>
+            <span className="shrink-0 bg-white text-black font-mono font-black text-[9px] px-1.5 py-0.5 border border-black">
+              SENT
+            </span>
+          </div>
+        </div>
+
+        {/* Subscription Tiles List with Staggered Fade-in Animation */}
         <div className="space-y-2.5">
-          {items.map((sub) => {
+          {items.map((sub, idx) => {
             const isHovered = hoveredId === sub.id;
+            const isPulsing = sub.status === 'renewing';
 
             return (
               <div
                 key={sub.id}
+                style={{ animationDelay: `${idx * 120}ms` }}
                 onMouseEnter={() => setHoveredId(sub.id)}
                 onMouseLeave={() => setHoveredId(null)}
                 className={`
-                  p-3 border-2 border-black transition-all duration-100 cursor-pointer
+                  animate-stagger-card p-3 border-2 border-black transition-all duration-100 cursor-pointer
                   ${isHovered 
                     ? 'bg-[#F5D90A] shadow-[2px_2px_0px_#111] translate-x-[2px] translate-y-[2px]' 
                     : 'bg-white shadow-[4px_4px_0px_#111] hover:bg-[#FAF9F5]'
@@ -164,9 +189,11 @@ export const OrbitHeroGraphic: React.FC = () => {
                         {sub.frequency}
                       </span>
                     </div>
-                    <Badge variant={sub.badgeVariant} size="sm">
-                      {sub.statusLabel}
-                    </Badge>
+                    <div className={isPulsing ? 'animate-pulse' : ''}>
+                      <Badge variant={sub.badgeVariant} size="sm">
+                        {sub.statusLabel}
+                      </Badge>
+                    </div>
                   </div>
                 </div>
               </div>

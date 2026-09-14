@@ -3,6 +3,10 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   html, body {
     background-color: #F7F5F0;
     color: #111111;
@@ -80,4 +84,36 @@
     @apply inline-flex items-center px-2 py-0.5 text-xs font-mono font-bold uppercase border-2 border-black;
     box-shadow: 2px 2px 0px #111111;
   }
+}
+
+/* Staggered load & Toast animations for Hero Mockup */
+@keyframes slideUpFade {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes toastSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-stagger-card {
+  animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-toast-slide {
+  opacity: 0;
+  animation: toastSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) 2s forwards;
 }
