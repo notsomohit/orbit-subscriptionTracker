@@ -148,65 +148,64 @@ export function computeWorkflowReminders(sub: Subscription): WorkflowRunInfo['re
 export const api = {
   // Auth API
   async login(credentials: { email: string; password: string }): Promise<{ user: User; token: string }> {
-    try {
-      const res = await fetch(`${API_BASE}/auth/log-in`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(credentials),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        return data.data;
-      }
-      const err = await res.json().catch(() => null);
-      if (err?.message) throw new Error(err.message);
-    } catch (err: any) {
-      if (err.message && !err.message.includes('fetch') && !err.message.includes('NetworkError')) {
-        throw err;
-      }
+    const res = await fetch(`${API_BASE}/auth/log-in`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(credentials),
+    });
+
+    const data = await res.json().catch(() => null);
+
+    if (!res.ok) {
+      const errorMessage = data?.message || (res.status === 401 ? 'Invalid email or password' : 'Authentication failed');
+      throw new Error(errorMessage);
     }
 
-    // Fallback mock session
-    await new Promise((res) => setTimeout(res, 300));
-    return {
-      user: {
-        _id: 'usr_' + Math.random().toString(36).substring(2, 10),
-        name: credentials.email.split('@')[0] || 'User',
-        email: credentials.email,
-      },
-      token: 'jwt_mock_token_' + Math.random().toString(36).substring(2, 12),
-    };
+    if (!data?.data?.token || !data?.data?.user) {
+      throw new Error('Invalid response from server');
+    }
+
+    return data.data;
   },
 
   async signUp(userData: { name: string; email: string; password: string }): Promise<{ user: User; token: string }> {
-    try {
-      const res = await fetch(`${API_BASE}/auth/sign-up`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userData),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        return data.data;
-      }
-      const err = await res.json().catch(() => null);
-      if (err?.message) throw new Error(err.message);
-    } catch (err: any) {
-      if (err.message && !err.message.includes('fetch') && !err.message.includes('NetworkError')) {
-        throw err;
-      }
+    const res = await fetch(`${API_BASE}/auth/sign-up`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userData),
+    });
+
+    const data = await res.json().catch(() => null);
+
+    if (!res.ok) {
+      const errorMessage = data?.message || (res.status === 409 ? 'User already exists' : 'Registration failed');
+      throw new Error(errorMessage);
     }
 
-    // Fallback mock session
-    await new Promise((res) => setTimeout(res, 350));
-    return {
-      user: {
-        _id: 'usr_' + Math.random().toString(36).substring(2, 10),
-        name: userData.name,
-        email: userData.email,
-      },
-      token: 'jwt_mock_token_' + Math.random().toString(36).substring(2, 12),
-    };
+    if (!data?.data?.token || !data?.data?.user) {
+      throw new Error('Invalid response from server');
+    }
+
+    return data.data;
+  },
+
+  async getMe(): Promise<{ user: User }> {
+    const token = localStorage.getItem('orbit_token');
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+
+    const res = await fetch(`${API_BASE}/auth/me`, {
+      headers: getAuthHeaders(),
+    });
+
+    const data = await res.json().catch(() => null);
+
+    if (!res.ok) {
+      throw new Error(data?.message || 'Unauthorized session');
+    }
+
+    return data.data;
   },
 
   async logout(): Promise<boolean> {
@@ -232,8 +231,16 @@ export const api = {
         if (Array.isArray(data.data?.data)) return data.data.data;
         if (Array.isArray(data.data)) return data.data;
       }
-    } catch (e) {
-      // fallback to store
+      if (res.status === 401) {
+        // Clear invalid/expired session
+        localStorage.removeItem('orbit_token');
+        localStorage.removeItem('orbit_user');
+        window.location.href = '/login';
+        throw new Error('Session expired');
+      }
+    } catch (e: any) {
+      if (e?.message === 'Session expired') throw e;
+      // fallback to store if backend is offline in demo mode
     }
 
     await new Promise((res) => setTimeout(res, 200));
