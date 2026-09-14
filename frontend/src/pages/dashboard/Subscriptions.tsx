@@ -9,6 +9,7 @@ import {
   ColumnDef,
 } from '@tanstack/react-table';
 import { api } from '../../lib/api';
+import { useAuth } from '../../context/AuthContext';
 import type {
   Subscription,
   SubscriptionStatus,
@@ -25,6 +26,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Filter,
+  AlertCircle,
+  RefreshCw,
+  PackageOpen,
 } from 'lucide-react';
 import dayjs from 'dayjs';
 import { Button } from '../../components/ui/Button';
@@ -36,6 +40,9 @@ import { Select } from '../../components/ui/Select';
 
 export const Subscriptions: React.FC = () => {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const userId = user?._id || '';
+
   const [globalFilter, setGlobalFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
@@ -55,18 +62,25 @@ export const Subscriptions: React.FC = () => {
   const [formStartDate, setFormStartDate] = useState(dayjs().format('YYYY-MM-DD'));
   const [formStatus, setFormStatus] = useState<SubscriptionStatus>('active');
 
-  // Fetch Subscriptions
-  const { data: subscriptions = [], isLoading } = useQuery({
-    queryKey: ['subscriptions'],
+  // Fetch Subscriptions scoped to the authenticated user
+  const {
+    data: subscriptions = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ['subscriptions', userId],
     queryFn: () => api.getSubscriptions(),
+    enabled: !!userId,
   });
 
   // Create Mutation
   const createMutation = useMutation({
     mutationFn: (payload: CreateSubscriptionPayload) => api.createSubscription(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
-      queryClient.invalidateQueries({ queryKey: ['activeWorkflows'] });
+      queryClient.invalidateQueries({ queryKey: ['subscriptions', userId] });
+      queryClient.invalidateQueries({ queryKey: ['activeWorkflows', userId] });
       setCreateModalOpen(false);
       resetForm();
     },
@@ -77,8 +91,8 @@ export const Subscriptions: React.FC = () => {
     mutationFn: ({ id, updates }: { id: string; updates: any }) =>
       api.updateSubscription(id, updates),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
-      queryClient.invalidateQueries({ queryKey: ['activeWorkflows'] });
+      queryClient.invalidateQueries({ queryKey: ['subscriptions', userId] });
+      queryClient.invalidateQueries({ queryKey: ['activeWorkflows', userId] });
       setEditSubscription(null);
     },
   });
@@ -87,8 +101,8 @@ export const Subscriptions: React.FC = () => {
   const deleteMutation = useMutation({
     mutationFn: (id: string) => api.deleteSubscription(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
-      queryClient.invalidateQueries({ queryKey: ['activeWorkflows'] });
+      queryClient.invalidateQueries({ queryKey: ['subscriptions', userId] });
+      queryClient.invalidateQueries({ queryKey: ['activeWorkflows', userId] });
     },
   });
 
@@ -297,147 +311,212 @@ export const Subscriptions: React.FC = () => {
         </Button>
       </div>
 
-      {/* Filter and Search Bar */}
-      <Card variant="white" borderWidth={2} shadow="md" className="p-4 flex flex-col md:flex-row items-center justify-between gap-4">
-        
-        {/* Search */}
-        <div className="relative w-full md:w-80">
-          <Search className="w-4 h-4 text-black absolute left-3 top-1/2 -translate-y-1/2 stroke-[2.5]" />
-          <input
-            type="text"
-            value={globalFilter}
-            onChange={(e) => setGlobalFilter(e.target.value)}
-            placeholder="Search name, payment, category..."
-            className="w-full pl-9 pr-4 py-2 bg-[#F7F5F0] border-2 border-black text-xs font-mono text-black placeholder:text-neutral-500 focus:outline-none focus:shadow-[3px_3px_0px_#F5D90A]"
-          />
-        </div>
-
-        {/* Filters */}
-        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-          {/* Status Filter */}
-          <div className="flex items-center gap-1.5 text-xs font-mono font-bold">
-            <span className="uppercase">STATUS:</span>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-2.5 py-1.5 bg-white border-2 border-black text-xs font-mono font-bold text-black focus:outline-none focus:shadow-[2px_2px_0px_#F5D90A] cursor-pointer"
-            >
-              <option value="all">ALL STATUSES</option>
-              <option value="active">ACTIVE</option>
-              <option value="cancelled">CANCELLED</option>
-              <option value="expired">EXPIRED</option>
-            </select>
-          </div>
-
-          {/* Category Filter */}
-          <div className="flex items-center gap-1.5 text-xs font-mono font-bold">
-            <span className="uppercase">CATEGORY:</span>
-            <select
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-              className="px-2.5 py-1.5 bg-white border-2 border-black text-xs font-mono font-bold text-black focus:outline-none focus:shadow-[2px_2px_0px_#F5D90A] cursor-pointer"
-            >
-              <option value="all">ALL CATEGORIES</option>
-              <option value="sports">SPORTS</option>
-              <option value="news">NEWS</option>
-              <option value="entertainment">ENTERTAINMENT</option>
-              <option value="lifestyle">LIFESTYLE</option>
-              <option value="technology">TECHNOLOGY</option>
-              <option value="finance">FINANCE</option>
-              <option value="politics">POLITICS</option>
-            </select>
-          </div>
-
-          {/* Currency Filter */}
-          <div className="flex items-center gap-1.5 text-xs font-mono font-bold">
-            <span className="uppercase">CURRENCY:</span>
-            <select
-              value={currencyFilter}
-              onChange={(e) => setCurrencyFilter(e.target.value)}
-              className="px-2.5 py-1.5 bg-white border-2 border-black text-xs font-mono font-bold text-black focus:outline-none focus:shadow-[2px_2px_0px_#F5D90A] cursor-pointer"
-            >
-              <option value="all">ALL CURRENCIES</option>
-              <option value="USD">USD ($)</option>
-              <option value="EUR">EUR (€)</option>
-              <option value="RS">RS (₹)</option>
-            </select>
-          </div>
-        </div>
-
-      </Card>
-
-      {/* TanStack Table Container */}
-      <div className="border-3 border-black shadow-[6px_6px_0px_#111] bg-white overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <tr
-                  key={headerGroup.id}
-                  className="border-b-2 border-black bg-[#F5D90A]"
-                >
-                  {headerGroup.headers.map((header) => (
-                    <th
-                      key={header.id}
-                      className="px-5 py-3 text-xs font-display font-black uppercase tracking-wider text-black border-r-2 border-black last:border-r-0"
-                    >
-                      {flexRender(header.column.columnDef.header, header.getContext())}
-                    </th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
-            <tbody className="divide-y-2 divide-black">
-              {table.getRowModel().rows.length > 0 ? (
-                table.getRowModel().rows.map((row) => (
-                  <tr
-                    key={row.id}
-                    className="hover:bg-[#FAF9F5] transition-colors"
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="px-5 py-3.5 text-xs border-r border-black/20 last:border-r-0">
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </td>
-                    ))}
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={columns.length} className="px-5 py-12 text-center text-neutral-700 font-mono font-bold text-sm">
-                    NO SUBSCRIPTIONS MATCH YOUR QUERY.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination Bar */}
-        <div className="p-4 border-t-2 border-black bg-[#EFECE6] flex items-center justify-between text-xs font-mono font-bold">
-          <div>
-            TOTAL: <span className="bg-[#F5D90A] px-1.5 py-0.5 border border-black">{filteredData.length}</span> SUBSCRIPTIONS
-          </div>
+      {/* Error Alert */}
+      {isError && (
+        <Card variant="yellow" borderWidth={3} shadow="md" className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-[#EF4444] bg-[#FEE2E2]">
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-              className="px-2 py-1 bg-white border-2 border-black shadow-[2px_2px_0px_#111] hover:bg-[#F5D90A] disabled:opacity-40 disabled:hover:bg-white active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all cursor-pointer"
-            >
-              <ChevronLeft className="w-4 h-4 stroke-[3]" />
-            </button>
-            <span>
-              PAGE {table.getState().pagination.pageIndex + 1} OF {table.getPageCount() || 1}
-            </span>
-            <button
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-              className="px-2 py-1 bg-white border-2 border-black shadow-[2px_2px_0px_#111] hover:bg-[#F5D90A] disabled:opacity-40 disabled:hover:bg-white active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all cursor-pointer"
-            >
-              <ChevronRight className="w-4 h-4 stroke-[3]" />
-            </button>
+            <AlertCircle className="w-5 h-5 text-[#B91C1C] stroke-[2.5] shrink-0" />
+            <div>
+              <div className="font-display font-black text-sm uppercase text-[#B91C1C]">
+                FAILED TO LOAD SUBSCRIPTIONS
+              </div>
+              <div className="text-xs font-mono text-neutral-800">
+                {(error as Error)?.message || 'Could not communicate with the backend server.'}
+              </div>
+            </div>
+          </div>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => refetch()}
+            className="gap-1.5 shrink-0 self-start sm:self-auto"
+          >
+            <RefreshCw className="w-3.5 h-3.5 stroke-[2.5]" />
+            <span>RETRY</span>
+          </Button>
+        </Card>
+      )}
+
+      {/* Loading State */}
+      {isLoading ? (
+        <div className="p-16 border-3 border-black shadow-[6px_6px_0px_#111] bg-white flex flex-col items-center justify-center gap-4">
+          <div className="w-10 h-10 border-4 border-black border-t-[#F5D90A] rounded-full animate-spin" />
+          <div className="font-mono text-xs font-bold uppercase tracking-widest text-black">
+            LOADING SUBSCRIPTIONS FROM BACKEND...
           </div>
         </div>
-      </div>
+      ) : !isError && subscriptions.length === 0 ? (
+        /* Empty State for Brand New User */
+        <div className="p-14 border-3 border-black shadow-[6px_6px_0px_#111] bg-white flex flex-col items-center justify-center text-center space-y-4">
+          <div className="w-14 h-14 bg-[#F5D90A] border-2 border-black shadow-[3px_3px_0px_#111] flex items-center justify-center">
+            <PackageOpen className="w-7 h-7 stroke-[2.5]" />
+          </div>
+          <div className="space-y-1 max-w-md">
+            <h3 className="font-display font-black text-lg uppercase text-black">
+              NO SUBSCRIPTIONS FOUND
+            </h3>
+            <p className="text-xs font-mono text-neutral-600">
+              You haven't tracked any recurring subscriptions yet. Add your first service to start automated reminders.
+            </p>
+          </div>
+          <Button
+            variant="primary"
+            size="md"
+            onClick={() => {
+              resetForm();
+              setCreateModalOpen(true);
+            }}
+            className="gap-2"
+          >
+            <Plus className="w-4 h-4 stroke-[3]" />
+            <span>ADD YOUR FIRST SUBSCRIPTION</span>
+          </Button>
+        </div>
+      ) : (
+        <>
+          {/* Filter and Search Bar */}
+          <Card variant="white" borderWidth={2} shadow="md" className="p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+            
+            {/* Search */}
+            <div className="relative w-full md:w-80">
+              <Search className="w-4 h-4 text-black absolute left-3 top-1/2 -translate-y-1/2 stroke-[2.5]" />
+              <input
+                type="text"
+                value={globalFilter}
+                onChange={(e) => setGlobalFilter(e.target.value)}
+                placeholder="Search name, payment, category..."
+                className="w-full pl-9 pr-4 py-2 bg-[#F7F5F0] border-2 border-black text-xs font-mono text-black placeholder:text-neutral-500 focus:outline-none focus:shadow-[3px_3px_0px_#F5D90A]"
+              />
+            </div>
+
+            {/* Filters */}
+            <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+              {/* Status Filter */}
+              <div className="flex items-center gap-1.5 text-xs font-mono font-bold">
+                <span className="uppercase">STATUS:</span>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="px-2.5 py-1.5 bg-white border-2 border-black text-xs font-mono font-bold text-black focus:outline-none focus:shadow-[2px_2px_0px_#F5D90A] cursor-pointer"
+                >
+                  <option value="all">ALL STATUSES</option>
+                  <option value="active">ACTIVE</option>
+                  <option value="cancelled">CANCELLED</option>
+                  <option value="expired">EXPIRED</option>
+                </select>
+              </div>
+
+              {/* Category Filter */}
+              <div className="flex items-center gap-1.5 text-xs font-mono font-bold">
+                <span className="uppercase">CATEGORY:</span>
+                <select
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
+                  className="px-2.5 py-1.5 bg-white border-2 border-black text-xs font-mono font-bold text-black focus:outline-none focus:shadow-[2px_2px_0px_#F5D90A] cursor-pointer"
+                >
+                  <option value="all">ALL CATEGORIES</option>
+                  <option value="sports">SPORTS</option>
+                  <option value="news">NEWS</option>
+                  <option value="entertainment">ENTERTAINMENT</option>
+                  <option value="lifestyle">LIFESTYLE</option>
+                  <option value="technology">TECHNOLOGY</option>
+                  <option value="finance">FINANCE</option>
+                  <option value="politics">POLITICS</option>
+                </select>
+              </div>
+
+              {/* Currency Filter */}
+              <div className="flex items-center gap-1.5 text-xs font-mono font-bold">
+                <span className="uppercase">CURRENCY:</span>
+                <select
+                  value={currencyFilter}
+                  onChange={(e) => setCurrencyFilter(e.target.value)}
+                  className="px-2.5 py-1.5 bg-white border-2 border-black text-xs font-mono font-bold text-black focus:outline-none focus:shadow-[2px_2px_0px_#F5D90A] cursor-pointer"
+                >
+                  <option value="all">ALL CURRENCIES</option>
+                  <option value="USD">USD ($)</option>
+                  <option value="EUR">EUR (€)</option>
+                  <option value="RS">RS (₹)</option>
+                </select>
+              </div>
+            </div>
+
+          </Card>
+
+          {/* TanStack Table Container */}
+          <div className="border-3 border-black shadow-[6px_6px_0px_#111] bg-white overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <tr
+                      key={headerGroup.id}
+                      className="border-b-2 border-black bg-[#F5D90A]"
+                    >
+                      {headerGroup.headers.map((header) => (
+                        <th
+                          key={header.id}
+                          className="px-5 py-3 text-xs font-display font-black uppercase tracking-wider text-black border-r-2 border-black last:border-r-0"
+                        >
+                          {flexRender(header.column.columnDef.header, header.getContext())}
+                        </th>
+                      ))}
+                    </tr>
+                  ))}
+                </thead>
+                <tbody className="divide-y-2 divide-black">
+                  {table.getRowModel().rows.length > 0 ? (
+                    table.getRowModel().rows.map((row) => (
+                      <tr
+                        key={row.id}
+                        className="hover:bg-[#FAF9F5] transition-colors"
+                      >
+                        {row.getVisibleCells().map((cell) => (
+                          <td key={cell.id} className="px-5 py-3.5 text-xs border-r border-black/20 last:border-r-0">
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </td>
+                        ))}
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={columns.length} className="px-5 py-12 text-center text-neutral-700 font-mono font-bold text-sm">
+                        NO SUBSCRIPTIONS MATCH YOUR SEARCH OR FILTER CRITERIA.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination Bar */}
+            <div className="p-4 border-t-2 border-black bg-[#EFECE6] flex items-center justify-between text-xs font-mono font-bold">
+              <div>
+                TOTAL: <span className="bg-[#F5D90A] px-1.5 py-0.5 border border-black">{filteredData.length}</span> SUBSCRIPTIONS
+              </div>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => table.previousPage()}
+                  disabled={!table.getCanPreviousPage()}
+                  className="px-2 py-1 bg-white border-2 border-black shadow-[2px_2px_0px_#111] hover:bg-[#F5D90A] disabled:opacity-40 disabled:hover:bg-white active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all cursor-pointer"
+                >
+                  <ChevronLeft className="w-4 h-4 stroke-[3]" />
+                </button>
+                <span>
+                  PAGE {table.getState().pagination.pageIndex + 1} OF {table.getPageCount() || 1}
+                </span>
+                <button
+                  onClick={() => table.nextPage()}
+                  disabled={!table.getCanNextPage()}
+                  className="px-2 py-1 bg-white border-2 border-black shadow-[2px_2px_0px_#111] hover:bg-[#F5D90A] disabled:opacity-40 disabled:hover:bg-white active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all cursor-pointer"
+                >
+                  <ChevronRight className="w-4 h-4 stroke-[3]" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Add / Edit Subscription Modal */}
       <Modal

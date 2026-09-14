@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { api } from '../../lib/api';
 import { Badge } from '../ui/Badge';
 import { Mail, Bell } from 'lucide-react';
 
@@ -19,13 +17,7 @@ interface SubCardItem {
 
 export const OrbitHeroGraphic: React.FC = () => {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
-
-  const { data: subscriptions = [] } = useQuery({
-    queryKey: ['subscriptions'],
-    queryFn: () => api.getSubscriptions(),
-  });
-
-  const activeCount = subscriptions.filter((s) => s.status === 'active').length || 4;
+  const activeCount = 4; // Showcase count for public landing hero graphic
 
   const items: SubCardItem[] = [
     {

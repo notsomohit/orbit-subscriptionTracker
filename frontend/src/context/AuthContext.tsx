@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import type { User } from '../types';
 import { api } from '../lib/api';
 
@@ -15,6 +16,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const queryClient = useQueryClient();
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('orbit_token'));
   const [user, setUser] = useState<User | null>(() => {
     const saved = localStorage.getItem('orbit_user');
@@ -37,6 +39,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const storedToken = localStorage.getItem('orbit_token');
       if (!storedToken) {
         if (isMounted) {
+          queryClient.clear();
           setUser(null);
           setToken(null);
           setIsLoading(false);
@@ -56,6 +59,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (isMounted) {
           localStorage.removeItem('orbit_token');
           localStorage.removeItem('orbit_user');
+          queryClient.clear();
           setUser(null);
           setToken(null);
         }
@@ -71,9 +75,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [queryClient]);
 
   const login = (newToken: string, userData: User) => {
+    queryClient.clear();
     localStorage.setItem('orbit_token', newToken);
     localStorage.setItem('orbit_user', JSON.stringify(userData));
     setToken(newToken);
@@ -81,6 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signup = (newToken: string, userData: User) => {
+    queryClient.clear();
     localStorage.setItem('orbit_token', newToken);
     localStorage.setItem('orbit_user', JSON.stringify(userData));
     setToken(newToken);
@@ -91,6 +97,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     api.logout().catch(() => {});
     localStorage.removeItem('orbit_token');
     localStorage.removeItem('orbit_user');
+    queryClient.clear();
     setToken(null);
     setUser(null);
   };

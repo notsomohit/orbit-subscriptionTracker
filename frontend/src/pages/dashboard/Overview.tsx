@@ -1,6 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/api';
+import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
 import {
   CreditCard,
@@ -13,6 +14,8 @@ import {
   PieChart as PieIcon,
   BarChart3,
   PackageOpen,
+  AlertCircle,
+  RefreshCw,
 } from 'lucide-react';
 import {
   BarChart,
@@ -66,10 +69,58 @@ const ChartEmptyState: React.FC<{ message?: string }> = ({ message = 'No data av
 );
 
 export const Overview: React.FC = () => {
-  const { data: subscriptions = [], isLoading } = useQuery({
-    queryKey: ['subscriptions'],
+  const { user } = useAuth();
+  const userId = user?._id || '';
+
+  const {
+    data: subscriptions = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ['subscriptions', userId],
     queryFn: () => api.getSubscriptions(),
+    enabled: !!userId,
   });
+
+  if (isLoading) {
+    return <BrutalLoader />;
+  }
+
+  if (isError) {
+    return (
+      <div className="space-y-6 animate-fadeIn">
+        <div className="pb-2 border-b-2 border-black">
+          <h1 className="text-3xl sm:text-4xl font-display font-black text-black uppercase tracking-tight">
+            ORBIT OVERVIEW
+          </h1>
+        </div>
+        <Card variant="yellow" borderWidth={3} shadow="md" className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-[#EF4444] bg-[#FEE2E2]">
+          <div className="flex items-center gap-3">
+            <AlertCircle className="w-6 h-6 text-[#B91C1C] stroke-[2.5] shrink-0" />
+            <div>
+              <div className="font-display font-black text-base uppercase text-[#B91C1C]">
+                FAILED TO LOAD SUBSCRIPTION ANALYTICS
+              </div>
+              <div className="text-xs font-mono text-neutral-800">
+                {(error as Error)?.message || 'Could not communicate with the backend server.'}
+              </div>
+            </div>
+          </div>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => refetch()}
+            className="gap-1.5 shrink-0"
+          >
+            <RefreshCw className="w-3.5 h-3.5 stroke-[2.5]" />
+            <span>RETRY</span>
+          </Button>
+        </Card>
+      </div>
+    );
+  }
 
   const hasData = subscriptions.length > 0;
 

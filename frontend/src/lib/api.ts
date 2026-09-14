@@ -17,100 +17,6 @@ const getAuthHeaders = (): HeadersInit => {
   };
 };
 
-// Realistic seed data that 100% matches your Mongoose schema:
-let subscriptionsStore: Subscription[] = [
-  {
-    _id: 'sub_66d101a09f821',
-    name: 'GitHub Copilot Business',
-    price: 19,
-    currency: 'USD',
-    frequency: 'monthly',
-    category: 'technology',
-    paymentMethod: 'Credit Card (Visa •••• 4242)',
-    status: 'active',
-    startDate: '2026-08-01T00:00:00.000Z',
-    renewalDate: '2026-09-01T00:00:00.000Z',
-    user: 'usr_66c28f9901aa92110293',
-    createdAt: '2026-08-01T10:00:00.000Z',
-    updatedAt: '2026-08-01T10:00:00.000Z',
-  },
-  {
-    _id: 'sub_66d102b18e712',
-    name: 'Upstash Pro QStash & Redis',
-    price: 320,
-    currency: 'USD',
-    frequency: 'yearly',
-    category: 'technology',
-    paymentMethod: 'Mastercard •••• 8812',
-    status: 'active',
-    startDate: '2026-01-15T00:00:00.000Z',
-    renewalDate: '2027-01-15T00:00:00.000Z',
-    user: 'usr_66c28f9901aa92110293',
-    createdAt: '2026-01-15T12:00:00.000Z',
-    updatedAt: '2026-01-15T12:00:00.000Z',
-  },
-  {
-    _id: 'sub_66d103c27d603',
-    name: 'Spotify Premium Family',
-    price: 179,
-    currency: 'RS',
-    frequency: 'monthly',
-    category: 'entertainment',
-    paymentMethod: 'UPI (Google Pay)',
-    status: 'active',
-    startDate: '2026-08-10T00:00:00.000Z',
-    renewalDate: '2026-09-09T00:00:00.000Z',
-    user: 'usr_66c28f9901aa92110293',
-    createdAt: '2026-08-10T09:30:00.000Z',
-    updatedAt: '2026-08-10T09:30:00.000Z',
-  },
-  {
-    _id: 'sub_66d104d36c594',
-    name: 'The Financial Times Digital',
-    price: 39,
-    currency: 'EUR',
-    frequency: 'monthly',
-    category: 'finance',
-    paymentMethod: 'PayPal Express',
-    status: 'active',
-    startDate: '2026-08-05T00:00:00.000Z',
-    renewalDate: '2026-09-04T00:00:00.000Z',
-    user: 'usr_66c28f9901aa92110293',
-    createdAt: '2026-08-05T14:15:00.000Z',
-    updatedAt: '2026-08-05T14:15:00.000Z',
-  },
-  {
-    _id: 'sub_66d105e45b485',
-    name: 'Gym & Crossfit Membership',
-    price: 2500,
-    currency: 'RS',
-    frequency: 'monthly',
-    category: 'lifestyle',
-    paymentMethod: 'Debit Card (HDFC)',
-    status: 'cancelled',
-    startDate: '2026-06-01T00:00:00.000Z',
-    renewalDate: '2026-07-01T00:00:00.000Z',
-    user: 'usr_66c28f9901aa92110293',
-    createdAt: '2026-06-01T08:00:00.000Z',
-    updatedAt: '2026-06-25T11:00:00.000Z',
-  },
-  {
-    _id: 'sub_66d106f54a376',
-    name: 'EuroSport Pass Daily',
-    price: 5,
-    currency: 'EUR',
-    frequency: 'daily',
-    category: 'sports',
-    paymentMethod: 'Apple Pay',
-    status: 'expired',
-    startDate: '2026-08-20T00:00:00.000Z',
-    renewalDate: '2026-08-21T00:00:00.000Z',
-    user: 'usr_66c28f9901aa92110293',
-    createdAt: '2026-08-20T18:00:00.000Z',
-    updatedAt: '2026-08-22T00:00:00.000Z',
-  },
-];
-
 // Helper to compute renewal date matching pre("save") hook in Mongoose model
 export function calculateRenewalDate(startDate: string, frequency: Subscription['frequency']): string {
   const renewalPeriods = {
@@ -222,142 +128,111 @@ export const api = {
 
   // Subscriptions CRUD (/api/v1/subscription)
   async getSubscriptions(): Promise<Subscription[]> {
-    try {
-      const res = await fetch(`${API_BASE}/subscription`, {
-        headers: getAuthHeaders(),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (Array.isArray(data.data?.data)) return data.data.data;
-        if (Array.isArray(data.data)) return data.data;
-      }
-      // For any non-ok response (including 401), fall through to mock store.
-      // Session expiry is handled by AuthContext.verifySession() and ProtectedRoute,
-      // not by individual data-fetching calls.
-    } catch (e) {
-      // Network error: fall through to mock store
+    const res = await fetch(`${API_BASE}/subscription`, {
+      headers: getAuthHeaders(),
+    });
+
+    if (!res.ok) {
+      let errorMsg = `Failed to fetch subscriptions (${res.status})`;
+      try {
+        const errJson = await res.json();
+        if (errJson.message) errorMsg = errJson.message;
+      } catch {}
+      throw new Error(errorMsg);
     }
 
-    await new Promise((res) => setTimeout(res, 200));
-    return subscriptionsStore.map((sub) => {
-      if (new Date(sub.renewalDate) < new Date() && sub.status === 'active') {
-        return { ...sub, status: 'expired' };
-      }
-      return sub;
-    });
+    const data = await res.json();
+    if (Array.isArray(data.data?.data)) return data.data.data;
+    if (Array.isArray(data.data)) return data.data;
+    return [];
   },
 
-  async getSubscriptionById(id: string): Promise<Subscription | undefined> {
-    try {
-      const res = await fetch(`${API_BASE}/subscription/${id}`, {
-        headers: getAuthHeaders(),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        return data.data?.data || data.data;
-      }
-    } catch (e) {
-      // fallback to store
+  async getSubscriptionById(id: string): Promise<Subscription> {
+    const res = await fetch(`${API_BASE}/subscription/${id}`, {
+      headers: getAuthHeaders(),
+    });
+
+    if (!res.ok) {
+      let errorMsg = `Subscription not found (${res.status})`;
+      try {
+        const errJson = await res.json();
+        if (errJson.message) errorMsg = errJson.message;
+      } catch {}
+      throw new Error(errorMsg);
     }
 
-    await new Promise((res) => setTimeout(res, 150));
-    return subscriptionsStore.find((s) => s._id === id);
+    const data = await res.json();
+    return data.data?.data || data.data;
   },
 
   async createSubscription(payload: CreateSubscriptionPayload): Promise<{ subscription: Subscription; workflowRunId: string }> {
-    try {
-      const res = await fetch(`${API_BASE}/subscription`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(payload),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        return data.data?.data || data.data;
-      }
-    } catch (e) {
-      // fallback
+    const res = await fetch(`${API_BASE}/subscription`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      let errorMsg = 'Failed to create subscription';
+      try {
+        const errJson = await res.json();
+        if (errJson.message) errorMsg = errJson.message;
+      } catch {}
+      throw new Error(errorMsg);
     }
 
-    await new Promise((res) => setTimeout(res, 300));
-    const renewalDate = calculateRenewalDate(payload.startDate, payload.frequency);
-    const newSub: Subscription = {
-      _id: 'sub_' + Math.random().toString(36).substring(2, 14),
-      ...payload,
-      renewalDate,
-      status: 'active',
-      user: 'usr_66c28f9901aa92110293',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    subscriptionsStore.unshift(newSub);
-    return {
-      subscription: newSub,
-      workflowRunId: 'wfr_' + Math.random().toString(36).substring(2, 12),
-    };
+    const data = await res.json();
+    return data.data?.data || data.data;
   },
 
   async updateSubscription(id: string, updates: Partial<CreateSubscriptionPayload & { status: Subscription['status'] }>): Promise<Subscription> {
-    try {
-      const res = await fetch(`${API_BASE}/subscription/${id}`, {
-        method: 'PUT',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(updates),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        return data.data?.data || data.data;
-      }
-    } catch (e) {
-      // fallback
+    const res = await fetch(`${API_BASE}/subscription/${id}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(updates),
+    });
+
+    if (!res.ok) {
+      let errorMsg = 'Failed to update subscription';
+      try {
+        const errJson = await res.json();
+        if (errJson.message) errorMsg = errJson.message;
+      } catch {}
+      throw new Error(errorMsg);
     }
 
-    await new Promise((res) => setTimeout(res, 250));
-    const index = subscriptionsStore.findIndex((s) => s._id === id);
-    if (index === -1) throw new Error('Subscription not found');
-
-    const current = subscriptionsStore[index];
-    const updated = { ...current, ...updates, updatedAt: new Date().toISOString() };
-    if (updates.frequency || updates.startDate) {
-      updated.renewalDate = calculateRenewalDate(
-        updates.startDate || current.startDate,
-        updates.frequency || current.frequency
-      );
-    }
-    subscriptionsStore[index] = updated;
-    return updated;
+    const data = await res.json();
+    return data.data?.data || data.data;
   },
 
   async deleteSubscription(id: string): Promise<boolean> {
-    try {
-      const res = await fetch(`${API_BASE}/subscription/${id}`, {
-        method: 'DELETE',
-        headers: getAuthHeaders(),
-      });
-      if (res.ok) return true;
-    } catch (e) {
-      // fallback
+    const res = await fetch(`${API_BASE}/subscription/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+    });
+
+    if (!res.ok) {
+      let errorMsg = 'Failed to delete subscription';
+      try {
+        const errJson = await res.json();
+        if (errJson.message) errorMsg = errJson.message;
+      } catch {}
+      throw new Error(errorMsg);
     }
 
-    await new Promise((res) => setTimeout(res, 250));
-    const idx = subscriptionsStore.findIndex((s) => s._id === id);
-    if (idx !== -1) {
-      subscriptionsStore.splice(idx, 1);
-      return true;
-    }
-    return false;
+    return true;
   },
 
-  // Active Workflows Info
+  // Active Workflows Info computed from actual user active subscriptions
   async getActiveWorkflows(): Promise<WorkflowRunInfo[]> {
-    await new Promise((res) => setTimeout(res, 200));
-    return subscriptionsStore
+    const subs = await this.getSubscriptions();
+    return subs
       .filter((s) => s.status === 'active')
       .map((s) => ({
         subscriptionId: s._id,
         subscriptionName: s.name,
         renewalDate: s.renewalDate,
-        workflowRunId: 'wfr_' + s._id.slice(4),
+        workflowRunId: 'wfr_' + (s._id ? s._id.slice(-6) : 'live'),
         reminders: computeWorkflowReminders(s),
       }));
   },
