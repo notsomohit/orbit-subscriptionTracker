@@ -97,26 +97,8 @@ export const OrbitHeroGraphic: React.FC = () => {
       <div className="absolute -inset-2.5 bg-[#F5D90A] border-3 border-black shadow-[8px_8px_0px_#111] pointer-events-none" />
 
       {/* Main Container Card */}
-      <div className="relative bg-white border-3 border-black p-5 sm:p-6 space-y-4">
+      <div className="relative bg-white border-3 border-black p-5 sm:p-6 space-y-3.5 shadow-[4px_4px_0px_#111]">
         
-        {/* Terminal / System Header Bar */}
-        <div className="flex items-center justify-between pb-3 border-b-2 border-black">
-          <div className="flex items-center gap-2">
-            <span className="w-3.5 h-3.5 bg-[#EF4444] border-2 border-black inline-block" />
-            <span className="w-3.5 h-3.5 bg-[#F5D90A] border-2 border-black inline-block" />
-            <span className="w-3.5 h-3.5 bg-[#22C55E] border-2 border-black inline-block" />
-            <span className="ml-2 font-mono text-xs font-bold uppercase tracking-wider text-neutral-800">
-              ORBIT_RADAR.SYS
-            </span>
-          </div>
-
-          <div className="bg-[#F5D90A] border-2 border-black px-2.5 py-0.5 shadow-[2px_2px_0px_#111]">
-            <span className="font-mono text-xs font-black">
-              {activeCount} ACTIVE
-            </span>
-          </div>
-        </div>
-
         {/* Fake Email Reminder Toast (Slides in after 2s pure CSS) */}
         <div className="animate-toast-slide">
           <div className="p-2.5 bg-[#111111] text-white border-2 border-black shadow-[4px_4px_0px_#F5D90A] flex items-center justify-between gap-2.5">

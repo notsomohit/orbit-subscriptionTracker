@@ -35,21 +35,21 @@ export const ArchitectureOverview: React.FC = () => {
   ];
 
   return (
-    <section id="architecture" className="py-20 md:py-28 bg-[#F7F5F0] border-b-3 border-black">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="architecture" className="py-12 md:py-16 bg-[#F7F5F0] border-b-3 border-black">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
-        <div className="max-w-3xl space-y-4 mb-14">
+        <div className="max-w-3xl space-y-3 mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#F5D90A] border-2 border-black font-mono font-bold text-xs shadow-[2px_2px_0px_#111] uppercase tracking-wider">
             <Layers className="w-4 h-4 stroke-[2.5]" />
             <span>Under The Hood</span>
           </div>
 
-          <h2 className="text-3xl sm:text-5xl font-display font-black text-black tracking-tight uppercase">
+          <h2 className="text-2xl sm:text-4xl lg:text-[42px] font-display font-black text-black tracking-tight uppercase leading-tight">
             HOW THE BACKEND PIPELINE WORKS
           </h2>
 
-          <p className="text-neutral-800 font-medium text-base sm:text-lg leading-relaxed">
+          <p className="text-neutral-800 font-medium text-sm sm:text-base leading-relaxed">
             The end-to-end execution flow of the Subscription Tracker API, from client request to database lifecycle hooks and scheduled Upstash email alerts.
           </p>
         </div>

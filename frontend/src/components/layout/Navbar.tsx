@@ -43,32 +43,35 @@ export const Navbar: React.FC = () => {
       )}
 
       <header className="sticky top-0 z-40 w-full border-b-2 border-black bg-[#F7F5F0]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           
           {/* Left: Brand Logo & Navigation */}
           <div className="flex items-center gap-8">
             <OrbitLogo size="md" />
 
             {!isDashboard && (
-              <nav className="hidden md:flex items-center space-x-5 text-xs font-display font-black uppercase tracking-wider text-black">
+              <nav className="hidden md:flex items-center space-x-6 text-xs font-display font-black uppercase tracking-wider text-black">
                 <a 
                   href="#how-it-works" 
                   className="px-2 py-1 hover:bg-[#F5D90A] border border-transparent hover:border-black transition-colors"
                 >
-                  HOW IT WORKS
-                </a>
-                <Link 
-                  to="/dashboard/workflows" 
-                  className="px-2 py-1 hover:bg-[#F5D90A] border border-transparent hover:border-black transition-colors"
-                >
                   WORKFLOWS
-                </Link>
-                <Link 
-                  to="/dashboard/api-specs" 
-                  className="px-2 py-1 hover:bg-[#F5D90A] border border-transparent hover:border-black transition-colors"
-                >
-                  API REFERENCE
-                </Link>
+                </a>
+                {isAuthenticated ? (
+                  <Link 
+                    to="/dashboard/api-specs#api-reference" 
+                    className="px-2 py-1 hover:bg-[#F5D90A] border border-transparent hover:border-black transition-colors"
+                  >
+                    API REFERENCE
+                  </Link>
+                ) : (
+                  <a 
+                    href="#api-reference" 
+                    className="px-2 py-1 hover:bg-[#F5D90A] border border-transparent hover:border-black transition-colors"
+                  >
+                    API REFERENCE
+                  </a>
+                )}
                 <Link 
                   to={targetDestination} 
                   className="px-2 py-1 hover:bg-[#F5D90A] border border-transparent hover:border-black transition-colors"
@@ -127,22 +130,25 @@ export const Navbar: React.FC = () => {
                 onClick={() => setMobileMenuOpen(false)}
                 className="py-2.5 px-3 hover:bg-[#F5D90A] border-2 border-transparent hover:border-black"
               >
-                HOW IT WORKS
-              </a>
-              <Link
-                to="/dashboard/workflows"
-                onClick={() => setMobileMenuOpen(false)}
-                className="py-2.5 px-3 hover:bg-[#F5D90A] border-2 border-transparent hover:border-black"
-              >
                 WORKFLOWS
-              </Link>
-              <Link
-                to="/dashboard/api-specs"
-                onClick={() => setMobileMenuOpen(false)}
-                className="py-2.5 px-3 hover:bg-[#F5D90A] border-2 border-transparent hover:border-black"
-              >
-                API REFERENCE
-              </Link>
+              </a>
+              {isAuthenticated ? (
+                <Link
+                  to="/dashboard/api-specs#api-reference"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="py-2.5 px-3 hover:bg-[#F5D90A] border-2 border-transparent hover:border-black"
+                >
+                  API REFERENCE
+                </Link>
+              ) : (
+                <a
+                  href="#api-reference"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="py-2.5 px-3 hover:bg-[#F5D90A] border-2 border-transparent hover:border-black"
+                >
+                  API REFERENCE
+                </a>
+              )}
               <Link
                 to={targetDestination}
                 onClick={() => setMobileMenuOpen(false)}
