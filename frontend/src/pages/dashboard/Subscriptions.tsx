@@ -25,10 +25,10 @@ import {
   Edit2,
   ChevronLeft,
   ChevronRight,
-  Filter,
   AlertCircle,
   RefreshCw,
   PackageOpen,
+  Loader2,
 } from 'lucide-react';
 import dayjs from 'dayjs';
 import { Button } from '../../components/ui/Button';
@@ -37,6 +37,7 @@ import { Badge } from '../../components/ui/Badge';
 import { Modal } from '../../components/ui/Modal';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
+import { SubscriptionSkeleton } from '../../components/ui/SubscriptionSkeleton';
 
 export const Subscriptions: React.FC = () => {
   const queryClient = useQueryClient();
@@ -66,6 +67,7 @@ export const Subscriptions: React.FC = () => {
   const {
     data: subscriptions = [],
     isLoading,
+    isFetching,
     isError,
     error,
     refetch,
@@ -289,9 +291,17 @@ export const Subscriptions: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b-2 border-black">
         <div>
-          <h1 className="text-3xl sm:text-4xl font-display font-black text-black uppercase tracking-tight">
-            SUBSCRIPTIONS DIRECTORY
-          </h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl sm:text-4xl font-display font-black text-black uppercase tracking-tight">
+              SUBSCRIPTIONS DIRECTORY
+            </h1>
+            {isFetching && !isLoading && (
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#F5D90A] border-2 border-black text-[10px] font-mono font-black shadow-[2px_2px_0px_#111]">
+                <Loader2 className="w-3 h-3 animate-spin stroke-[2.5]" />
+                REFRESHING
+              </span>
+            )}
+          </div>
           <p className="text-xs sm:text-sm font-medium text-neutral-700 mt-0.5">
             Manage your recurring commitments backed by MongoDB and Upstash reminders.
           </p>
@@ -337,14 +347,9 @@ export const Subscriptions: React.FC = () => {
         </Card>
       )}
 
-      {/* Loading State */}
+      {/* Loading Skeleton State */}
       {isLoading ? (
-        <div className="p-16 border-3 border-black shadow-[6px_6px_0px_#111] bg-white flex flex-col items-center justify-center gap-4">
-          <div className="w-10 h-10 border-4 border-black border-t-[#F5D90A] rounded-full animate-spin" />
-          <div className="font-mono text-xs font-bold uppercase tracking-widest text-black">
-            LOADING SUBSCRIPTIONS FROM BACKEND...
-          </div>
-        </div>
+        <SubscriptionSkeleton />
       ) : !isError && subscriptions.length === 0 ? (
         /* Empty State for Brand New User */
         <div className="p-14 border-3 border-black shadow-[6px_6px_0px_#111] bg-white flex flex-col items-center justify-center text-center space-y-4">
